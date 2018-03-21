@@ -4,7 +4,7 @@ import os
 NAME = "pyapputil"
 setup(
     name = NAME,
-    version = "1.0.3",
+    version = "1.0.4",
     author = "Carl Seelye",
     author_email = "cseelye@gmail.com",
     description = "Tools for building CLI applications",
