@@ -182,7 +182,7 @@ def threadwrapper(func):
                 raise
             log = GetLogger()
             log.debug(_traceback.format_exc(ex_val))
-            raise ApplicationError, ("{}: {}".format(ex_type.__name__, ex_val), str_tb), ex_tb
+            raise ApplicationError("{}: {}".format(ex_type.__name__, ex_val), str_tb, ex_val)
         finally:
             _threading.current_thread().name = orig_name
 
