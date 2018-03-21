@@ -45,7 +45,7 @@ def ValidateArgs(args, validators):
     if errors:
         raise InvalidArgumentError("\n".join(errors))
 
-    for argname, argvalue in args.iteritems():
+    for argname, argvalue in args.items():
         if argname not in validated.keys():
             validated[argname] = argvalue
 
@@ -58,7 +58,7 @@ class ValidateAndDefault(object):
     def __init__(self, argValidators):
         self.validators = {}
         self.defaults = {}
-        for arg_name, (arg_type, arg_default) in argValidators.iteritems():
+        for arg_name, (arg_type, arg_default) in argValidators.items():
             self.validators[arg_name] = arg_type
             self.defaults[arg_name] = arg_default
 
@@ -79,7 +79,7 @@ class ValidateAndDefault(object):
             default_args = dict(zip(arg_names, arg_defaults))
             # Replace any defaults with the ones supplied to this decorator
             if self.defaults:
-                for arg_name, arg_default in self.defaults.iteritems():
+                for arg_name, arg_default in self.defaults.items():
                     default_args[arg_name] = arg_default
 
             # Combine args and kwargs into a single dictionary of arg name => user supplied value
@@ -87,11 +87,11 @@ class ValidateAndDefault(object):
             for idx, user_val in enumerate(args):
                 arg_name = arg_names[idx]
                 user_args[arg_name] = user_val
-            for arg_name, user_val in kwargs.iteritems():
+            for arg_name, user_val in kwargs.items():
                 user_args[arg_name] = user_val
 
             # Fill in and log the default values being used
-            for arg_name, validator in self.validators.iteritems():
+            for arg_name, validator in self.validators.items():
                 if arg_name not in user_args or user_args[arg_name] == None:
                     log.debug2("  Using default value {}={}".format(arg_name, default_args[arg_name]))
                     user_args[arg_name] = default_args[arg_name]
@@ -99,7 +99,7 @@ class ValidateAndDefault(object):
             # Run each validator against the user input
             errors = []
             valid_args = {}
-            for arg_name, validator in self.validators.iteritems():
+            for arg_name, validator in self.validators.items():
                 if arg_name not in user_args:
                     errors.append("{} must have a value".format(arg_name))
                     continue
