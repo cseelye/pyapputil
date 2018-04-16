@@ -1,6 +1,13 @@
 from setuptools import setup
 import os
 
+"""
+Publish by building the package:
+    python setup.py sdist
+and then uploading:
+    twine upload dist/<NAME>-<version>.tar.gz
+"""
+
 NAME = "pyapputil"
 setup(
     name = NAME,
