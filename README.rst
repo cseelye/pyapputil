@@ -54,6 +54,11 @@ so that command line arguments can automatically set default values from
 appconfig, and the help display will show the default value as well as the name
 of the ENV variable that can be used to override it.
 
+typeutil
+========
+Collection of type validators that can be used with argparse/argutil, and
+decorators and util functions for using the same validators on functions
+
 exceptutil
 ==========
 
@@ -66,5 +71,3 @@ shellutil
 threadutil
 ==========
 
-typeutil
-========
