@@ -224,7 +224,7 @@ class SelectionType(object):
 class ItemList(object):
     """Type for making a list of things"""
 
-    def __init__(self, itemType=StrType, allowEmpty=False, minLength=0, maxLength=_sys.maxsize):
+    def __init__(self, itemType=StrType(), allowEmpty=False, minLength=0, maxLength=_sys.maxsize):
         if not callable(itemType):
             raise ValueError("type must be callable")
         self.itemType = itemType
