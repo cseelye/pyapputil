@@ -4,6 +4,8 @@
 import inspect as _inspect
 import re as _re
 import socket as _socket
+import string as _string
+import sys as _sys
 
 import functools as _functools
 from .logutil import GetLogger
@@ -66,6 +68,7 @@ class ValidateAndDefault(object):
 
         @_functools.wraps(func)
         def wrapper(*args, **kwargs):
+            """validate and set defaults"""
             log = GetLogger()
             # Build a dictionary of arg name => default value from the function spec
             spec = _inspect.getargspec(func)
@@ -92,7 +95,7 @@ class ValidateAndDefault(object):
 
             # Fill in and log the default values being used
             for arg_name, validator in self.validators.items():
-                if arg_name not in user_args or user_args[arg_name] == None:
+                if arg_name not in user_args or user_args[arg_name] is None:
                     log.debug2("  Using default value {}={}".format(arg_name, default_args[arg_name]))
                     user_args[arg_name] = default_args[arg_name]
 
@@ -142,18 +145,57 @@ def IsSet(value, name=None):
             raise InvalidArgumentError("Argument must have a value")
     return value
 
-def StrType(string, allowEmpty=False, name=None):
+class StrType(object):
     """Type for validating strings"""
-    if string:
-        string = str(string)
 
-    if string is None or (string == "" and not allowEmpty):
-        if name:
-            raise InvalidArgumentError("{} must have a value".format(name))
-        else:
-            raise InvalidArgumentError("Argument must have a value")
+    def __init__(self, allowEmpty=False, name=None, invalidCharacters=None, whitelistedCharacters=None, maxLength=None):
+        self.allowEmpty = allowEmpty
+        self.name = name
+        self.invalidCharacters = invalidCharacters
+        self.whitelistedCharacters = whitelistedCharacters
+        self.maxLength = maxLength
 
-    return string
+    def __call__(self, inVal):
+        if inVal:
+            inVal = str(inVal)
+
+        if inVal is None or (inVal == "" and not self.allowEmpty):
+            raise InvalidArgumentError("{} must have a value".format(self.name if self.name else "Argument"))
+
+        if self.invalidCharacters:
+            m = _re.search(r"([{}]+)".format(self.invalidCharacters), inVal)
+            if m:
+                raise InvalidArgumentError("{} contains invalid character".format(self.name if self.name else "Argument"))
+
+        if self.whitelistedCharacters:
+            if any(c not in self.whitelistedCharacters for c in inVal):
+                raise InvalidArgumentError("{} contains invalid character".format(self.name if self.name else "Argument"))
+
+        if self.maxLength:
+            if len(inVal) > self.maxLength:
+                raise InvalidArgumentError("{} is longer than the maximum {} characters".format(inVal, self.maxLength))
+
+        return inVal
+
+    def __repr__(self):
+        return "str"
+
+class NonNumericStringType(StrType):
+    """Type for validating strings that cannot be numbers"""
+
+    def __call__(self, inVal):
+        inVal = super(NonNumericStringType, self).__call__(inVal)
+        valid = False
+        for numtype in [int, float]:
+            try:
+                numtype(inVal)
+                valid = True
+                break
+            except (ValueError, TypeError):
+                continue
+        if valid:
+            raise InvalidArgumentError("{} cannot be a number".format(inVal))
+        return inVal
 
 class SelectionType(object):
     """Type for making a choice from a list of options"""
@@ -164,15 +206,15 @@ class SelectionType(object):
         self.choices = choices
         self.itemType = itemType
 
-    def __call__(self, string):
+    def __call__(self, inVal):
         # Verify that the selection is one of the choices
         try:
-            sel = self.itemType(string)
+            sel = self.itemType(inVal)
         except (TypeError, ValueError):
-            raise InvalidArgumentError("'{}' is not a valid {}".format(string, self.itemType.__name__))
+            raise InvalidArgumentError("'{}' is not a valid {}".format(inVal, self.itemType.__name__))
 
         if sel not in self.choices:
-            raise InvalidArgumentError("'{}' is not a valid choice".format(string))
+            raise InvalidArgumentError("'{}' is not a valid choice".format(inVal))
 
         return sel
 
@@ -182,24 +224,26 @@ class SelectionType(object):
 class ItemList(object):
     """Type for making a list of things"""
 
-    def __init__(self, itemType=str, allowEmpty=False):
+    def __init__(self, itemType=StrType, allowEmpty=False, minLength=0, maxLength=_sys.maxsize):
         if not callable(itemType):
             raise ValueError("type must be callable")
         self.itemType = itemType
         self.allowEmpty = allowEmpty
+        self.minLength = minLength
+        self.maxLength = maxLength
 
-    def __call__(self, string):
+    def __call__(self, inVal):
         # Split into individual items
-        if string is None:
+        if inVal is None:
             items = []
-        elif isinstance(string, basestring):
-            items = [i for i in _re.split(r"[,\s]+", string) if i]
+        elif isinstance(inVal, basestring):
+            items = [i for i in _re.split(r"[,\s]+", inVal) if i]
         else:
             try:
-                items = list(string)
+                items = list(inVal)
             except TypeError:
                 items = []
-                items.append(string)
+                items.append(inVal)
 
         # Validate each item is the correct type
         try:
@@ -210,6 +254,12 @@ class ItemList(object):
         # Validate the list is not empty
         if not self.allowEmpty and not items:
             raise InvalidArgumentError("list cannot be empty")
+
+        # Validate min and max length
+        if len(items) < self.minLength:
+            raise InvalidArgumentError("list must be at least {} elements".format(self.minLength))
+        if len(items) > self.maxLength:
+            raise InvalidArgumentError("list must be no more than {} elements".format(self.maxLength))
 
         return items
 
@@ -224,145 +274,178 @@ class OptionalValueType(object):
             raise ValueError("type must be callable")
         self.itemType = itemType
 
-    def __call__(self, string):
-        if string is None:
+    def __call__(self, inVal):
+        if inVal is None:
             return None
 
         if self.itemType is None:
-            return string
+            return inVal
 
         try:
-            item = self.itemType(string)
+            item = self.itemType(inVal)
         except (TypeError, ValueError):
-            raise InvalidArgumentError("{} is not a valid {}".format(string, self.itemType.__name__))
+            raise InvalidArgumentError("{} is not a valid {}".format(inVal, self.itemType.__name__))
         return item
 
     def __repr__(self):
         return "OptionalValueType({})".format(GetPrettiestTypeName(self.itemType))
+
+class MultiType(object):
+    """Type for things that can be more than one type"""
+
+    def __init__(self, *allowedTypes):
+        self.allowedTypes = allowedTypes
+        for atype in self.allowedTypes:
+            if not callable(atype):
+                raise ValueError("type must be callable")
+
+    def __call__(self, inVal):
+        errors = []
+        for possibleType in self.allowedTypes:
+            try:
+                return possibleType(inVal)
+            except (TypeError, ValueError, InvalidArgumentError) as ex:
+                errors.append("{}: {}".format(GetPrettiestTypeName(possibleType), ex.message))
+                continue
+        raise InvalidArgumentError("{} could not be parsed into an allowed type - {}".format(inVal, ", ".join(errors)))
+
+    def __repr__(self):
+        return "MultiType({})".format(", ".join([GetPrettiestTypeName(t) for t in self.allowedTypes]))
 
 def AtLeastOneOf(**kwargs):
     """Validate that one or more of the list of items has a value"""
     if not any(kwargs.values()):
         raise InvalidArgumentError("At least one of [{}] must have a value".format(",".join(kwargs.keys())))
 
-def BoolType(string, name=None):
+class BoolType(object):
     """Type for validating boolean"""
-    if isinstance(string, bool):
-        return string
 
-    string = str(string).lower()
-    if string in ["f", "false"]:
-        return False
-    elif string in ["t", "true"]:
-        return True
+    def __init__(self, name=None):
+        self.name = name
 
-    if name:
-        raise InvalidArgumentError("Invalid boolean value for {}".format(name))
-    else:
-        raise InvalidArgumentError("Invalid boolean value")
+    def __call__(self, inVal):
+        if isinstance(inVal, bool):
+            return inVal
 
-def IPv4AddressType(addressString, allowHostname=True):
+        inVal = str(inVal).lower()
+        if inVal in ["f", "false", "0"]:
+            return False
+        elif inVal in ["t", "true", "1"]:
+            return True
+
+        raise InvalidArgumentError("Invalid boolean value{}".format(" for {}".format(self.name) if self.name else ""))
+
+    def __repr__(self):
+        return "bool"
+
+class IPv4AddressOnlyType(StrType):
     """Type for validating IP v4 addresses"""
 
-    if allowHostname:
-        errormsg = "{} is not a resolvable hostname or valid IP address".format(addressString)
-    else:
-        errormsg = "{} is not a valid IP address".format(addressString)
+    def __init__(self):
+        super(IPv4AddressOnlyType, self).__init__(allowEmpty=False, whitelistedCharacters=_string.digits + ".")
 
-    if not addressString:
-        raise InvalidArgumentError("missing value")
+    def __call__(self, inVal):
+        inVal = super(IPv4AddressOnlyType, self).__call__(inVal)
 
-    # Check for resolvable hostname
-    if any (c.isalpha() for c in addressString):
-        if allowHostname:
-            return ResolvableHostname(addressString)
-        else:
-            raise InvalidArgumentError("{} is not a valid IP address".format(addressString))
-
-    try:
-        _socket.inet_pton(_socket.AF_INET, addressString)
-        return addressString
-    except AttributeError: # inet_pton not available
+        errormsg = "{} is not a valid IP address".format(inVal)
         try:
-            _socket.inet_aton(addressString)
-            return addressString
-        except _socket.error:
+            _socket.inet_pton(_socket.AF_INET, inVal)
+            return inVal
+        except AttributeError: # inet_pton not available
+            try:
+                _socket.inet_aton(inVal)
+                return inVal
+            except _socket.error:
+                raise InvalidArgumentError(errormsg)
+        except _socket.error: # not a valid address
             raise InvalidArgumentError(errormsg)
-    except _socket.error: # not a valid address
-        raise InvalidArgumentError(errormsg)
 
-    pieces = addressString.split(".")
-    if len(pieces) != 4:
-        raise InvalidArgumentError(errormsg)
+        pieces = inVal.split(".")
+        if len(pieces) != 4:
+            raise InvalidArgumentError(errormsg)
 
-    try:
-        pieces = [int(i) for i in pieces]
-    except ValueError:
-        raise InvalidArgumentError(errormsg)
+        try:
+            pieces = [int(i) for i in pieces]
+        except ValueError:
+            raise InvalidArgumentError(errormsg)
 
-    if not all([i >= 0 and i <= 255 for i in pieces]):
-        raise InvalidArgumentError(errormsg)
+        if not all([i >= 0 and i <= 255 for i in pieces]):
+            raise InvalidArgumentError(errormsg)
 
-    return addressString
+        return inVal
 
-def IPv4AddressOnlyType(addressString):
-    """Type for validating IPv4 addresses"""
-    return IPv4AddressType(addressString, allowHostname=False)
+    def __repr__(self):
+        return "IPv4Address"
 
-def ResolvableHostname(hostnameString):
+class HostnameType(StrType):
+    """Type for validating hostname strings"""
+
+    def __init__(self):
+        super(HostnameType, self).__init__(allowEmpty=False, maxLength=253, whitelistedCharacters=_string.letters + _string.digits + "-.")
+
+    def __call__(self, inVal):
+        inVal = super(HostnameType, self).__call__(inVal)
+        pieces = inVal.split(".")
+        for piece in pieces:
+            if len(piece) > 63:
+                raise InvalidArgumentError("No piece of a hostname can be > 63 characters: {}".format(piece))
+            if piece.startswith("-"):
+                raise InvalidArgumentError("No piece of a hostname can start with '-': {}".format(piece))
+        return inVal
+
+    def __repr__(self):
+        return "Hostname"
+
+class ResolvableHostnameType(HostnameType):
     """Type for validating a string is a resolvable hostname"""
 
-    hostnameString = StrType(hostnameString)
+    def __call__(self, inVal):
+        inVal = super(ResolvableHostnameType, self).__call__(inVal)
 
-    if not hostnameString:
-        raise InvalidArgumentError("missing value")
+        try:
+            _socket.gethostbyname(inVal)
+        except _socket.gaierror: #Unable to resolve host name
+            raise InvalidArgumentError("{} is not a resolvable hostname".format(inVal))
+        return inVal
 
-    try:
-        _socket.gethostbyname(hostnameString)
-    except _socket.gaierror: #Unable to resolve host name
-        raise InvalidArgumentError("{} is not a resolvable hostname".format(hostnameString))
+    def __repr__(self):
+        return "ResolvableHostname"
 
-    return hostnameString
+class IPv4AddressType(MultiType):
+    """Type for validating IPv4 address or resovable hostname"""
 
-def IPv4SubnetType(subnetString):
+    def __init__(self):
+        super(IPv4AddressType, self).__init__(IPv4AddressOnlyType(), ResolvableHostnameType())
+
+    def __repr__(self):
+        return "IPv4AddressOrHostname"
+
+class IPv4SubnetType(StrType):
     """Type for validating subnets, either CIDR or network/netmask"""
-    if not subnetString:
-        raise InvalidArgumentError("missing value")
 
-    if "/" not in subnetString:
-        raise InvalidArgumentError("missing CIDR bits or netmask")
+    def __init__(self):
+        super(IPv4SubnetType, self).__init__(allowEmpty=False, whitelistedCharacters=_string.digits + "./")
 
-    network, mask = subnetString.split("/")
+    def __call__(self, inVal):
+        inVal = super(IPv4SubnetType, self).__call__(inVal)
 
-    # Validate the network is a valid IP address
-    IPv4AddressType(network, allowHostname=False)
+        if "/" not in inVal:
+            raise InvalidArgumentError("missing CIDR bits or netmask")
 
-    # Validate the mask is either a valid IP, or an integer between 0 and 32
-    try:
-        IPv4AddressType(mask, allowHostname=False)
-        return subnetString
-    except InvalidArgumentError:
-        pass
+        network, mask = inVal.split("/")
+        # Validate the network is a valid IP address
+        network = IPv4AddressOnlyType()(network)
 
-    try:
-        IntegerRangeType(0, 32)(mask)
-        return subnetString
-    except InvalidArgumentError:
-        pass
-
-    raise InvalidArgumentError("invalid CIDR bits or netmask")
-
-class CountType(object):
-    """Type for validating a count of something"""
-
-    def __init__(self, allowZero=False):
-        if allowZero:
-            self.minval = 0
+        # Validate the mask is either a valid IP, or an integer between 0 and 32
+        if "." in mask:
+            mask = IPv4AddressOnlyType()(mask)
         else:
-            self.minval = 1
+            mask = IntegerRangeType(minValue=0, maxValue=32)(mask)
 
-    def __call__(self, string):
-        return IntegerRangeType(self.minval)(string)
+        return "{}/{}".format(network, mask)
+
+    def __repr__(self):
+        return "IPv4Subnet"
 
 class IntegerRangeType(object):
     """Type for validating an integer within a range of values, inclusive"""
@@ -376,12 +459,12 @@ class IntegerRangeType(object):
         if maxValue is not None:
             self.maxValue = int(maxValue)
 
-    def __call__(self, string):
+    def __call__(self, inVal):
 
         try:
-            number = int(string)
+            number = int(inVal)
         except (TypeError, ValueError):
-            raise InvalidArgumentError("{} is not a valid integer".format(string))
+            raise InvalidArgumentError("{} is not a valid integer".format(inVal))
 
         if self.minValue is not None and number < self.minValue:
             raise InvalidArgumentError("{} must be >= {}".format(number, self.minValue))
@@ -391,64 +474,65 @@ class IntegerRangeType(object):
 
         return number
 
-def PositiveIntegerType(string):
+    def __repr__(self):
+        return "int"
+
+class CountType(IntegerRangeType):
+    """Type for validating a count of something"""
+
+    def __init__(self, allowZero=False):
+        super(CountType, self).__init__(minValue=0 if allowZero else 1)
+
+class PositiveIntegerType(IntegerRangeType):
     """Type for validating integers"""
 
-    errormsg = "{} is not a positive integer".format(string)
+    def __init__(self):
+        super(PositiveIntegerType, self).__init__(minValue=0)
 
-    try:
-        number = int(string)
-    except (TypeError, ValueError):
-        raise InvalidArgumentError(errormsg)
-
-    if number < 0:
-        raise InvalidArgumentError(errormsg)
-    return number
-
-def PositiveNonZeroIntegerType(string):
+class PositiveNonZeroIntegerType(IntegerRangeType):
     """Type for validating integers"""
 
-    errormsg = "{} is not a positive non-zero integer".format(string)
+    def __init__(self):
+        super(PositiveNonZeroIntegerType, self).__init__(minValue=1)
 
-    try:
-        number = int(string)
-    except (TypeError, ValueError):
-        raise InvalidArgumentError(errormsg)
-
-    if number <= 0:
-        raise InvalidArgumentError(errormsg)
-    return number
-
-def VLANTagType(string):
+class VLANTagType(IntegerRangeType):
     """Type for validating VLAN tags"""
 
-    errormsg = "{} is not a valid VLAN tag".format(string)
+    def __init__(self):
+        super(VLANTagType, self).__init__(minValue=1, maxValue=4095)
 
-    try:
-        tag = int(string)
-    except (TypeError, ValueError):
-        raise InvalidArgumentError(errormsg)
-    if tag < 1 or tag > 4095:
-        raise InvalidArgumentError(errormsg)
-    return tag
+    def __repr__(self):
+        return "VLANTag"
 
-def MACAddressType(string):
+class MACAddressType(StrType):
     """Type for validating MAC address"""
 
-    errormsg = "{} is not a valid MAC address".format(string)
+    def __init__(self):
+        super(MACAddressType, self).__init__(allowEmpty=False)
 
-    if not _re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", string):
-        raise InvalidArgumentError(errormsg)
-    return string.lower()
+    def __call__(self, inVal):
+        inVal = super(MACAddressType, self).__call__(inVal)
+        inVal = inVal.lower()
+        if not _re.match("[0-9a-f]{2}([-:])[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", inVal):
+            raise InvalidArgumentError("{} is not a valid MAC address".format(inVal))
+        return inVal
 
-def RegexType(string):
+    def __repr__(self):
+        return "MACAddress"
+
+class RegExType(object):
     """Type for validating regexes"""
 
-    try:
-        _re.compile(string)
-    except _re.error:
-        raise InvalidArgumentError("Invalid regex")
-    return string
+    def __call__(self, inVal):
+        try:
+            _re.compile(inVal)
+        except _re.error:
+            raise InvalidArgumentError("Invalid regex")
+        return inVal
+
+    def __repr__(self):
+        return "RegEx"
+
 
 def GetPrettiestTypeName(typeToName):
     """Get the best human representation of a type"""
