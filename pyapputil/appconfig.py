@@ -83,7 +83,8 @@ USER_CONFIG_FILEPATH = _os.path.join(APP_PATH, USER_CONFIG_FILENAME)
 if _os.path.exists(USER_CONFIG_FILEPATH):
     with open(USER_CONFIG_FILEPATH, "r") as userfile:
         user_config = _yaml.load(userfile)
-    appconfig.update(user_config)
+    if user_config:
+        appconfig.update(user_config)
 
 # Import any values set in the environment
 if PREFIX_VAR_NAME not in appconfig:

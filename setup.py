@@ -11,7 +11,7 @@ and then uploading:
 NAME = "pyapputil"
 setup(
     name = NAME,
-    version = "1.0.6",
+    version = "1.0.7",
     author = "Carl Seelye",
     author_email = "cseelye@gmail.com",
     description = "Tools for building CLI applications",
