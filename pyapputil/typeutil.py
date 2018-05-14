@@ -200,7 +200,7 @@ class NonNumericStringType(StrType):
 class SelectionType(object):
     """Type for making a choice from a list of options"""
 
-    def __init__(self, choices, itemType=StrType):
+    def __init__(self, choices, itemType=StrType()):
         if not callable(itemType):
             raise ValueError("type must be callable")
         self.choices = choices
@@ -248,8 +248,8 @@ class ItemList(object):
         # Validate each item is the correct type
         try:
             items = [self.itemType(i) for i in items]
-        except (TypeError, ValueError):
-            raise InvalidArgumentError("Invalid {} value".format(self.itemType.__name__))
+        except (TypeError, ValueError) as ex:
+            raise InvalidArgumentError("Invalid {} value: {}".format(self.itemType.__name__, ex.message))
 
         # Validate the list is not empty
         if not self.allowEmpty and not items:
