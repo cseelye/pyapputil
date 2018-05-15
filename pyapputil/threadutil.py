@@ -1,10 +1,6 @@
 #!/usr/bin/env python2.7
 """This module provides utility classes and functions for threading/multiprocessing"""
 
-from .logutil import GetLogger
-from .appconfig import appconfig, AddDefault
-from .exceptutil import ApplicationError
-
 import fcntl as _fcntl
 import functools as _functools
 import multiprocessing as _multiprocessing
@@ -12,6 +8,10 @@ import multiprocessing.pool as _multiprocessing_pool
 import sys as _sys
 import threading as _threading
 import traceback as _traceback
+
+from .logutil import GetLogger
+from .appconfig import appconfig, AddDefault
+from .exceptutil import ApplicationError, TimeoutExpiredError
 
 # Helpful multiprocessing debug for threadpools
 # from logging import DEBUG as _DEBUG_LEVEL
@@ -25,7 +25,7 @@ AddDefault("use_multiprocessing", False)
 _globalPool = None
 _globalPoolLock = _multiprocessing.Lock()
 def GlobalPool():
-    """ Get the global thread pool """
+    """ Get the singleton global thread pool """
     #pylint: disable=global-statement
     global _globalPool
     #pylint: enable=global-statement
@@ -35,6 +35,7 @@ def GlobalPool():
     return _globalPool
 
 def ShutdownGlobalPool():
+    """Shutdown the global threadpool singleton"""
     with _globalPoolLock:
         if _globalPool:
             _globalPool.Shutdown()
@@ -46,7 +47,6 @@ def IsMainThread():
     Returns:
         Boolean true if this is the main thread, false otherwise
     """
-
     return _threading.current_thread().name == "MainThread"
 
 def IsMainProcess():
@@ -56,8 +56,9 @@ def IsMainProcess():
     Returns:
         Boolean true if this is the main process, false otherwise
     """
-
+    #pylint: disable=not-callable
     return _multiprocessing.current_process().name == "MainProcess"
+    #pylint: enable=not-callable
 
 class AsyncResult(object):
     """Result object from posting to a ThreadPool"""
@@ -65,14 +66,22 @@ class AsyncResult(object):
     def __init__(self, result):
         self.result = result
 
-    def Get(self):
+    def Get(self, timeout=None):
         """
-        Wait for and return the result of the thread
+        Wait for and return the result of the thread. If the timeout expires before the thread is finished, throw TimeoutExpiredError
+
+        Args:
+            timeout:    how long to wait for the thread to finish (float)
 
         Returns:
             The return value of the thread
         """
-        return self.result.get(0xFFFF)
+        if timeout is None:
+            timeout = 0xFFFF
+        try:
+            return self.result.get(timeout)
+        except _multiprocessing.TimeoutError:
+            raise TimeoutExpiredError("The timeout expired before the thread completed")
 
     def Wait(self, timeout):
         """
@@ -84,7 +93,17 @@ class AsyncResult(object):
         Returns:
             Boolean true if the thread is ready or false if the timeout expired (bool)
         """
-        return self.result.wait(timeout)
+        self.result.wait(timeout)
+        return self.result.ready()
+
+    def Ready(self):
+        """
+        Test if the thread has completed and a result is ready
+
+        Returns:
+            True if the thread is compelte, False if it is not (bool)
+        """
+        return self.result.ready()
 
 def _initworkerprocess():
     """
@@ -152,7 +171,7 @@ def WaitForThreads(asyncResults):
     for item in asyncResults:
         # If the result is not True, or if there is an exception, this thread failed
         try:
-            result =  item.Get()
+            result = item.Get()
             if result is False:
                 allgood = False
         except ApplicationError as e:
@@ -165,7 +184,7 @@ def threadwrapper(func):
     """Decorator for functions to be run as threads"""
 
     @_functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def __wrapper(*args, **kwargs):
         orig_name = _threading.current_thread().name
         try:
             return func(*args, **kwargs)
@@ -181,15 +200,15 @@ def threadwrapper(func):
                 ex_val.originalTraceback = str_tb
                 raise
             log = GetLogger()
-            log.debug(_traceback.format_exc(ex_val))
+            log.debug2(_traceback.format_exc(ex_val))
             raise ApplicationError("{}: {}".format(ex_type.__name__, ex_val), str_tb, ex_val)
         finally:
             _threading.current_thread().name = orig_name
 
-    return wrapper
+    return __wrapper
 
-class LockFile:
-    """Wrapper for using an OS lockfile for conordination"""
+class LockFile(object):
+    """Wrapper for using an OS lockfile for coordination"""
 
     def __init__(self, lockname):
         self.lockFile = "/var/tmp/{}.lockfile".format(lockname)

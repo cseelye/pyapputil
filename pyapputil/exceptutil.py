@@ -28,7 +28,7 @@ class ApplicationError(Exception):
 class InvalidArgumentError(ApplicationError):
     """Exception raised when invalid arguments are passed to a function or invalid type conversion is attempted"""
 
-class TimeoutError(ApplicationError):
+class TimeoutExpiredError(ApplicationError):
     """Exception raised when a timeout expires"""
 
 class LocalEnvironmentError(ApplicationError):
