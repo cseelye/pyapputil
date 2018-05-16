@@ -1,6 +1,8 @@
 =========
 pyapputil
 =========
+.. image:: https://travis-ci.org/cseelye/pyapputil.svg?branch=master
+    :target: https://travis-ci.org/cseelye/pyapputil
 Python module to simplify building CLI applications. Includes simple helpers for
 building an app, validating arguments, configfiles/default values, logging,
 global exception catching, privilege escalation, signal handling,
@@ -70,4 +72,3 @@ shellutil
 
 threadutil
 ==========
-
