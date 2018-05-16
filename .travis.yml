@@ -1,0 +1,17 @@
+language: python
+python:
+    - '2.7'
+
+script:
+    - sed -e "s/__VERSION__/${TRAVIS_TAG}" -i setup.py
+
+deploy:
+    provider: pypi
+    distributions: sdist
+    on:
+        tags: true
+        branch: master
+    user:
+        secure: tvEFIWaFH+VFenawJgsxbarF9zSv96/9ITWnqq6h4ZHoFurNFk2IMNJ93rUaGTtndTup6aUJrLdZnYVLDpiU+2zk891bDC2mEbzWMKaOdtz+vXdLCj0A54sRi1DVvHMRllFMXrIIezXm9Tn0E7KsA0B9Fakhx7rPw5inclpIrImtmPLD7JrZSIHg+PKpKMIjminMX7PFToT60j+V9nH5YpQBIABnPZX7rqSbQlvGVIroRsHVitckkVuJiYbnVOV2dERNtQSS13ViJEFqYRM8Cyki/VnEosqg+8ggxVW8UMpBtKTgb1Xhcbq8V6x+Hr4ixuVLSX4RnaY1hEDzmGNt78oINkspIC3kwlfTzYcDERo18dADHpCRpZgiZ/5q4gv61SQXUUwl0a1zSUVBJz9zRJD7lSjQJINmXJ4MjJtPZDW5NYcAFoHGPdGqRUlKUYvOmHwvwoYYHK3Am9csvKZnhuJ56jKbsEdVuoTM3rrKBv+H+Ey9YyOASWb5SoplYRPtAcqtUAY/ANEqLVwMZXHlXfTr60YuYWEyb15O2r66AMvznibQ00tkgBXnmfpnstsjU+pzxI2zz//0S14oyNsPJ3fDNtQrrqogBi+yw3Z6PKMNa9+Pku5eTPZn2VfdxZoDy4Vi02Za5fUTCCaFXCFyoV5jF+XINpo0aih87qAPDV4=
+    password:
+        secure: PoW+2RMAGxABRuQ0PBGXOU4ty4vR07so/4Daxw6/t7Q4lFUxErYp7KtxhnahVtaBl07rY5L2VaEhz8ZLBis95tqW96erY3apmd6afh62NgaD3f8UdceJlR8LbDlQu+Lm4nvbLCBa8V/jHCRh45VzTi6VktHG8gKm34hV9UckUu5Bsrzilmieu1d4Y9d9fGbphdGbqIhsuVvPHzSv6ATQkAzKebC5mnR5ToMB+p5d3HixQxbqHXtNGbFhs2Pn1CfP5HZmSmX7U4w7BnAqxAGB9MudQZ+IWpej3kTDl/3OXMNoE/Sof2Pk8XnsriAfND2YP885Fqgt7CWnl0FdHyiNO/260+oVOmXp1aOS5jnxdgfcmtY9AeFbp/4Sog39cZurC/uK51IyrVmpNtL8MdwuknzFFfacdtP2PBI/R88mlQP0MwlPknQDsPaQ46dyde+setg/mwESPOTj+PYK4AuQ+11x8mbYa0mHFMbEeEjxJDBII8SWrubTp9AIHKzN3jQ/Ts3L7gO4wEEp4Ep2nASOxnN5RO/XIm8+9WzCm5RW7t148ElGd7zbbrlddjvgnDhCd+SzI80tojO6w611wigmh0eRN6TXzUzNwy6sSLQW7idR6fCE4J9qzLKa3+h2lYr4IYboyvBbVyi2P4xQdp2eLBkPicNT+b3pnyuiVOF6Bdc=
