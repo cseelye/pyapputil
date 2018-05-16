@@ -3,7 +3,7 @@ python:
     - '2.7'
 
 script:
-    - sed -e "s/__VERSION__/${TRAVIS_TAG}" -i setup.py
+    - sed -e "s/__VERSION__/${TRAVIS_TAG}/" -i setup.py
 
 deploy:
     provider: pypi
