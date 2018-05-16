@@ -1,8 +1,13 @@
 =========
 pyapputil
 =========
+
 .. image:: https://travis-ci.org/cseelye/pyapputil.svg?branch=master
     :target: https://travis-ci.org/cseelye/pyapputil
+
+.. image:: https://badge.fury.io/py/pyapputil.svg
+    :target: https://badge.fury.io/py/pyapputil
+
 Python module to simplify building CLI applications. Includes simple helpers for
 building an app, validating arguments, configfiles/default values, logging,
 global exception catching, privilege escalation, signal handling,
