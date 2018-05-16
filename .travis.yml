@@ -15,5 +15,5 @@ deploy:
     on:
         tags: true
         branch: master
-    user: $PYPI_USERNAME
-    password: $PYPI_PASSWORD
+    user: "$PYPI_USERNAME"
+    password: "$PYPI_PASSWORD"
