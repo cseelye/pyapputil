@@ -8,6 +8,7 @@ script:
 deploy:
     provider: pypi
     distributions: sdist
+    skip_cleanup: true
     on:
         tags: true
         branch: master
