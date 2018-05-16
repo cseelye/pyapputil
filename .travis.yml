@@ -1,17 +1,15 @@
 language: python
 python:
-    - '2.7'
-
+- '2.7'
 script:
-    - sed -e "s/__VERSION__/${TRAVIS_TAG}/" -i setup.py
-
+- sed -e "s/__VERSION__/${TRAVIS_TAG}/" -i setup.py
 deploy:
-    provider: pypi
-    distributions: sdist
-    skip_cleanup: true
-    on:
-        tags: true
-        branch: master
-    user: cseelye
-    password:
-        secure: "uWzPAhQ4UqUc2m5b8+hNu6OHNv5onZXA4gsynpsMceG5logJxKHERQmOgLbYkXPQ0MuzIRRr9HkbI6X6pQISaXZFAI5nU43bBd9VduB0qUqchmCOSigPSTBQ+GFBzDpYGwbt2PFZgKNYr6hhQ8DIahtBZ3n/ujkgDY19LPNQj2FIscfN7uQNLhzCUB1xOyy6vIYrcZqpOGmwGgqn4DY694rJjnUlKB6mHxuOR5ZYYHsVkQKHO8T0NlcEMbRJZtrjcxGfkLVsmHzFRoZfBhHQJp4YI07n+xcok4hxz00wvwIZNJlRimsISK+4nVopjbn3xGTHDIBeA8namipReFcbBEJR3Z8B97dIptYjBhknl53eynZUcyjuddId27EGHTStALWNJT1VX75yapmKMDwHh3YlkybocLhAk1zbaMbDgtnjxt9Bg75zY4ZNOjQXWHGhl9a+5u4W+CJbV45SfaAml/8RJ06EXNqNUk/nFvVW7VOjP7yEH4DrarvRY+1m701hlMeUXgHwvEuvUD3ZVlwaRH/2Aj4PiCwFXSZgXDCFOFz9I06iQHvUYDjxFHbarjM2xvOhgcVos5yD27VwTBcoSG2qooZqhK1eAnOozr3OIihryvhUuXotIcmhcusB47Agw0MAyH7/rFSSgijeBHbdBJR6C1DFwyvLfYVVr5eVXWs="
+  provider: pypi
+  distributions: sdist
+  skip_cleanup: true
+  on:
+    tags: true
+    branch: master
+  user: cseelye
+  password:
+    secure: ob2RwLuyKhbcnevz33vHNxqc9MLI0/bY67MYV9Q2KAnyoYpeoG/7Pce7XBmZvoQxP8sFe5GJYyWAlN9wXzF0lg9mR4XxhfRiiEBRedJYCkKl8hq3OstEuxmJzP+oTXVC167/PK2PWo81sfqsG1kI5f1aROF60fA96Z9aorXucOHkokivp4Nqa3jVVbT3Ao+eBDd8RmYs4SKZuhoqSaDdlRLg5ZJU/sWerkhG/U61CgdwQcLGY+cwHkbhyomU0ngpG5mBH2+cx+syovd1LNzKebkfG9UWwndL7ItlY+sFYrYW97d/TnSxeR4/DtlEHlIYQ7dMyMo96rqHojmG4cdZiJpFs9g4hkdHAstKxtrXYvZ66BAXXWeIqgAG9MCN/xNioD57Y86S5t7AjPeh8HkrWlJqbGqWn2s1aIBbaYESNVJgGg/rLees2rOhj64sfite7F5NGIFrIbG+j4U/L5vLYabLLr9ZZNqQ0EqynYMS69+nu6Cbf4E6MtUI1uoj+YfTPfI2aZpQ23B/sWElD+tQcN4rFcDcVM+thGcZWsiOGbrC+LzVwbMWb7Q7EegfUKhtj1GlLFXWnkNMgfBxeKnCHP7SharOe5zDGU5WxPM1ngoHApXW0+GXKdCjXPjCHQl3M6A55OLuGWp+TtMO1mkn43GfML+YmTLA2tJZIzPkr0M=
