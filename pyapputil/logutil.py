@@ -488,7 +488,7 @@ def GetLogger(name="myapp", logConfig=None):
         logFile = logConfig['logFile'] or '{}.log'.format(name)
         fileFormatter = logging.Formatter('%(asctime)s: %(name)s[%(process)d]: %(levelname)s %(message)s')
         fileLogger = logging.FileHandler(logFile)
-        fileLogger.setLevel(logging.DEBUG)
+        fileLogger.setLevel(CustomLogLevels.DEBUG2)
         fileLogger.setFormatter(fileFormatter)
         fileLogger.set_name('file')
         mylog.addHandler(fileLogger)
