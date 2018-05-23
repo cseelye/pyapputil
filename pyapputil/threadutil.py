@@ -10,7 +10,7 @@ import threading as _threading
 import traceback as _traceback
 
 from .logutil import GetLogger
-from .appconfig import appconfig, AddDefault
+from .appconfig import appconfig, add_default
 from .exceptutil import ApplicationError, TimeoutExpiredError
 
 # Helpful multiprocessing debug for threadpools
@@ -20,7 +20,7 @@ from .exceptutil import ApplicationError, TimeoutExpiredError
 
 CPU_THREADS = _multiprocessing.cpu_count()
 
-AddDefault("use_multiprocessing", False)
+add_default("use_multiprocessing", False)
 
 _globalPool = None
 _globalPoolLock = _multiprocessing.Lock()

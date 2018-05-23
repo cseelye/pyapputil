@@ -267,20 +267,22 @@ ParserTestCase = ParserTesterMetaclass('ParserTestCase', bases, {})
 class TestOptionalsSingleDash(ParserTestCase):
     """Test an Optional with a single-dash option string"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x')]
     failures = ['-x', 'a', '--foo', '-x --foo', '-x -y']
     successes = [
-        ('', NS(x=None, debug=0)),
-        ('-x a', NS(x='a', debug=0)),
-        ('-xa', NS(x='a', debug=0)),
-        ('-x -1', NS(x='-1', debug=0)),
-        ('-x-1', NS(x='-1', debug=0)),
+        ('', NS(x=None)),
+        ('-x a', NS(x='a')),
+        ('-xa', NS(x='a')),
+        ('-x -1', NS(x='-1')),
+        ('-x-1', NS(x='-1')),
     ]
 
 
 class TestOptionalsSingleDashCombined(ParserTestCase):
     """Test an Optional with a single-dash option string"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', action='store_true'),
         Sig('-yyy', action='store_const', const=42),
@@ -289,134 +291,142 @@ class TestOptionalsSingleDashCombined(ParserTestCase):
     failures = ['a', '--foo', '-xa', '-x --foo', '-x -z', '-z -x',
                 '-yx', '-yz a', '-yyyx', '-yyyza', '-xyza']
     successes = [
-        ('', NS(x=False, yyy=None, z=None, debug=0)),
-        ('-x', NS(x=True, yyy=None, z=None, debug=0)),
-        ('-za', NS(x=False, yyy=None, z='a', debug=0)),
-        ('-z a', NS(x=False, yyy=None, z='a', debug=0)),
-        ('-xza', NS(x=True, yyy=None, z='a', debug=0)),
-        ('-xz a', NS(x=True, yyy=None, z='a', debug=0)),
-        ('-x -za', NS(x=True, yyy=None, z='a', debug=0)),
-        ('-x -z a', NS(x=True, yyy=None, z='a', debug=0)),
-        ('-y', NS(x=False, yyy=42, z=None, debug=0)),
-        ('-yyy', NS(x=False, yyy=42, z=None, debug=0)),
-        ('-x -yyy -za', NS(x=True, yyy=42, z='a', debug=0)),
-        ('-x -yyy -z a', NS(x=True, yyy=42, z='a', debug=0)),
+        ('', NS(x=False, yyy=None, z=None)),
+        ('-x', NS(x=True, yyy=None, z=None)),
+        ('-za', NS(x=False, yyy=None, z='a')),
+        ('-z a', NS(x=False, yyy=None, z='a')),
+        ('-xza', NS(x=True, yyy=None, z='a')),
+        ('-xz a', NS(x=True, yyy=None, z='a')),
+        ('-x -za', NS(x=True, yyy=None, z='a')),
+        ('-x -z a', NS(x=True, yyy=None, z='a')),
+        ('-y', NS(x=False, yyy=42, z=None)),
+        ('-yyy', NS(x=False, yyy=42, z=None)),
+        ('-x -yyy -za', NS(x=True, yyy=42, z='a')),
+        ('-x -yyy -z a', NS(x=True, yyy=42, z='a')),
     ]
 
 
 class TestOptionalsSingleDashLong(ParserTestCase):
     """Test an Optional with a multi-character single-dash option string"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-foo')]
     failures = ['-foo', 'a', '--foo', '-foo --foo', '-foo -y', '-fooa']
     successes = [
-        ('', NS(foo=None, debug=0)),
-        ('-foo a', NS(foo='a', debug=0)),
-        ('-foo -1', NS(foo='-1', debug=0)),
-        ('-fo a', NS(foo='a', debug=0)),
-        ('-f a', NS(foo='a', debug=0)),
+        ('', NS(foo=None)),
+        ('-foo a', NS(foo='a')),
+        ('-foo -1', NS(foo='-1')),
+        ('-fo a', NS(foo='a')),
+        ('-f a', NS(foo='a')),
     ]
 
 
 class TestOptionalsSingleDashSubsetAmbiguous(ParserTestCase):
     """Test Optionals where option strings are subsets of each other"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-f'), Sig('-foobar'), Sig('-foorab')]
     failures = ['-f', '-foo', '-fo', '-foo b', '-foob', '-fooba', '-foora']
     successes = [
-        ('', NS(f=None, foobar=None, foorab=None, debug=0)),
-        ('-f a', NS(f='a', foobar=None, foorab=None, debug=0)),
-        ('-fa', NS(f='a', foobar=None, foorab=None, debug=0)),
-        ('-foa', NS(f='oa', foobar=None, foorab=None, debug=0)),
-        ('-fooa', NS(f='ooa', foobar=None, foorab=None, debug=0)),
-        ('-foobar a', NS(f=None, foobar='a', foorab=None, debug=0)),
-        ('-foorab a', NS(f=None, foobar=None, foorab='a', debug=0)),
+        ('', NS(f=None, foobar=None, foorab=None)),
+        ('-f a', NS(f='a', foobar=None, foorab=None)),
+        ('-fa', NS(f='a', foobar=None, foorab=None)),
+        ('-foa', NS(f='oa', foobar=None, foorab=None)),
+        ('-fooa', NS(f='ooa', foobar=None, foorab=None)),
+        ('-foobar a', NS(f=None, foobar='a', foorab=None)),
+        ('-foorab a', NS(f=None, foobar=None, foorab='a')),
     ]
 
 
 class TestOptionalsSingleDashAmbiguous(ParserTestCase):
     """Test Optionals that partially match but are not subsets"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-foobar'), Sig('-foorab')]
     failures = ['-f', '-f a', '-fa', '-foa', '-foo', '-fo', '-foo b']
     successes = [
-        ('', NS(foobar=None, foorab=None, debug=0)),
-        ('-foob a', NS(foobar='a', foorab=None, debug=0)),
-        ('-foor a', NS(foobar=None, foorab='a', debug=0)),
-        ('-fooba a', NS(foobar='a', foorab=None, debug=0)),
-        ('-foora a', NS(foobar=None, foorab='a', debug=0)),
-        ('-foobar a', NS(foobar='a', foorab=None, debug=0)),
-        ('-foorab a', NS(foobar=None, foorab='a', debug=0)),
+        ('', NS(foobar=None, foorab=None)),
+        ('-foob a', NS(foobar='a', foorab=None)),
+        ('-foor a', NS(foobar=None, foorab='a')),
+        ('-fooba a', NS(foobar='a', foorab=None)),
+        ('-foora a', NS(foobar=None, foorab='a')),
+        ('-foobar a', NS(foobar='a', foorab=None)),
+        ('-foorab a', NS(foobar=None, foorab='a')),
     ]
 
 
 class TestOptionalsNumeric(ParserTestCase):
     """Test an Optional with a short opt string"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-1', dest='one')]
     failures = ['-1', 'a', '-1 --foo', '-1 -y', '-1 -1', '-1 -2']
     successes = [
-        ('', NS(one=None, debug=0)),
-        ('-1 a', NS(one='a', debug=0)),
-        ('-1a', NS(one='a', debug=0)),
-        ('-1-2', NS(one='-2', debug=0)),
+        ('', NS(one=None)),
+        ('-1 a', NS(one='a')),
+        ('-1a', NS(one='a')),
+        ('-1-2', NS(one='-2')),
     ]
 
 
 class TestOptionalsDoubleDash(ParserTestCase):
     """Test an Optional with a double-dash option string"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('--foo')]
     failures = ['--foo', '-f', '-f a', 'a', '--foo -x', '--foo --bar']
     successes = [
-        ('', NS(foo=None, debug=0)),
-        ('--foo a', NS(foo='a', debug=0)),
-        ('--foo=a', NS(foo='a', debug=0)),
-        ('--foo -2.5', NS(foo='-2.5', debug=0)),
-        ('--foo=-2.5', NS(foo='-2.5', debug=0)),
+        ('', NS(foo=None)),
+        ('--foo a', NS(foo='a')),
+        ('--foo=a', NS(foo='a')),
+        ('--foo -2.5', NS(foo='-2.5')),
+        ('--foo=-2.5', NS(foo='-2.5')),
     ]
 
 
 class TestOptionalsDoubleDashPartialMatch(ParserTestCase):
     """Tests partial matching with a double-dash option string"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('--badger', action='store_true'),
         Sig('--bat'),
     ]
     failures = ['--bar', '--b', '--ba', '--b=2', '--ba=4', '--badge 5']
     successes = [
-        ('', NS(badger=False, bat=None, debug=0)),
-        ('--bat X', NS(badger=False, bat='X', debug=0)),
-        ('--bad', NS(badger=True, bat=None, debug=0)),
-        ('--badg', NS(badger=True, bat=None, debug=0)),
-        ('--badge', NS(badger=True, bat=None, debug=0)),
-        ('--badger', NS(badger=True, bat=None, debug=0)),
+        ('', NS(badger=False, bat=None)),
+        ('--bat X', NS(badger=False, bat='X')),
+        ('--bad', NS(badger=True, bat=None)),
+        ('--badg', NS(badger=True, bat=None)),
+        ('--badge', NS(badger=True, bat=None)),
+        ('--badger', NS(badger=True, bat=None)),
     ]
 
 
 class TestOptionalsDoubleDashPrefixMatch(ParserTestCase):
     """Tests when one double-dash option string is a prefix of another"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('--badger', action='store_true'),
         Sig('--ba'),
     ]
     failures = ['--bar', '--b', '--ba', '--b=2', '--badge 5']
     successes = [
-        ('', NS(badger=False, ba=None, debug=0)),
-        ('--ba X', NS(badger=False, ba='X', debug=0)),
-        ('--ba=X', NS(badger=False, ba='X', debug=0)),
-        ('--bad', NS(badger=True, ba=None, debug=0)),
-        ('--badg', NS(badger=True, ba=None, debug=0)),
-        ('--badge', NS(badger=True, ba=None, debug=0)),
-        ('--badger', NS(badger=True, ba=None, debug=0)),
+        ('', NS(badger=False, ba=None)),
+        ('--ba X', NS(badger=False, ba='X')),
+        ('--ba=X', NS(badger=False, ba='X')),
+        ('--bad', NS(badger=True, ba=None)),
+        ('--badg', NS(badger=True, ba=None)),
+        ('--badge', NS(badger=True, ba=None)),
+        ('--badger', NS(badger=True, ba=None)),
     ]
 
 
 class TestOptionalsSingleDoubleDash(ParserTestCase):
     """Test an Optional with single- and double-dash option strings"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-f', action='store_true'),
         Sig('--bar'),
@@ -424,19 +434,19 @@ class TestOptionalsSingleDoubleDash(ParserTestCase):
     ]
     failures = ['--bar', '-fbar', '-fbaz', '-bazf', '-b B', 'B']
     successes = [
-        ('', NS(f=False, bar=None, baz=None, debug=0)),
-        ('-f', NS(f=True, bar=None, baz=None, debug=0)),
-        ('--ba B', NS(f=False, bar='B', baz=None, debug=0)),
-        ('-f --bar B', NS(f=True, bar='B', baz=None, debug=0)),
-        ('-f -b', NS(f=True, bar=None, baz=42, debug=0)),
-        ('-ba -f', NS(f=True, bar=None, baz=42, debug=0)),
+        ('', NS(f=False, bar=None, baz=None)),
+        ('-f', NS(f=True, bar=None, baz=None)),
+        ('--ba B', NS(f=False, bar='B', baz=None)),
+        ('-f --bar B', NS(f=True, bar='B', baz=None)),
+        ('-f -b', NS(f=True, bar=None, baz=42)),
+        ('-ba -f', NS(f=True, bar=None, baz=42)),
     ]
 
 
 class TestOptionalsAlternatePrefixChars(ParserTestCase):
     """Test an Optional with option strings with custom prefixes"""
 
-    parser_signature = Sig(prefix_chars='+:/', add_help=False)
+    parser_signature = Sig(prefix_chars='+:/', add_help=False, add_config=False, add_debug=False)
     argument_signatures = [
         Sig('+f', action='store_true'),
         Sig('::bar'),
@@ -444,12 +454,12 @@ class TestOptionalsAlternatePrefixChars(ParserTestCase):
     ]
     failures = ['--bar', '-fbar', '-b B', 'B', '-f', '--bar B', '-baz', '-h', '--help', '+h', '::help', '/help']
     successes = [
-        ('', NS(f=False, bar=None, baz=None, debug=0)),
-        ('+f', NS(f=True, bar=None, baz=None, debug=0)),
-        ('::ba B', NS(f=False, bar='B', baz=None, debug=0)),
-        ('+f ::bar B', NS(f=True, bar='B', baz=None, debug=0)),
-        ('+f /b', NS(f=True, bar=None, baz=42, debug=0)),
-        ('/ba +f', NS(f=True, bar=None, baz=42, debug=0)),
+        ('', NS(f=False, bar=None, baz=None)),
+        ('+f', NS(f=True, bar=None, baz=None)),
+        ('::ba B', NS(f=False, bar='B', baz=None)),
+        ('+f ::bar B', NS(f=True, bar='B', baz=None)),
+        ('+f /b', NS(f=True, bar=None, baz=42)),
+        ('/ba +f', NS(f=True, bar=None, baz=42)),
     ]
 
 
@@ -458,7 +468,7 @@ class TestOptionalsAlternatePrefixCharsAddedHelp(ParserTestCase):
        should use the prefix_chars in use rather than - or --
        http://bugs.python.org/issue9444"""
 
-    parser_signature = Sig(prefix_chars='+:/', add_help=True)
+    parser_signature = Sig(prefix_chars='+:/', add_help=True, add_config=False, add_debug=False)
     argument_signatures = [
         Sig('+f', action='store_true'),
         Sig('::bar'),
@@ -466,19 +476,19 @@ class TestOptionalsAlternatePrefixCharsAddedHelp(ParserTestCase):
     ]
     failures = ['--bar', '-fbar', '-b B', 'B', '-f', '--bar B', '-baz']
     successes = [
-        ('', NS(f=False, bar=None, baz=None, debug=0)),
-        ('+f', NS(f=True, bar=None, baz=None, debug=0)),
-        ('::ba B', NS(f=False, bar='B', baz=None, debug=0)),
-        ('+f ::bar B', NS(f=True, bar='B', baz=None, debug=0)),
-        ('+f /b', NS(f=True, bar=None, baz=42, debug=0)),
-        ('/ba +f', NS(f=True, bar=None, baz=42, debug=0))
+        ('', NS(f=False, bar=None, baz=None)),
+        ('+f', NS(f=True, bar=None, baz=None)),
+        ('::ba B', NS(f=False, bar='B', baz=None)),
+        ('+f ::bar B', NS(f=True, bar='B', baz=None)),
+        ('+f /b', NS(f=True, bar=None, baz=42)),
+        ('/ba +f', NS(f=True, bar=None, baz=42))
     ]
 
 
 class TestOptionalsAlternatePrefixCharsMultipleShortArgs(ParserTestCase):
     """Verify that Optionals must be called with their defined prefixes"""
 
-    parser_signature = Sig(prefix_chars='+-', add_help=False)
+    parser_signature = Sig(prefix_chars='+-', add_help=False, add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', action='store_true'),
         Sig('+y', action='store_true'),
@@ -491,90 +501,97 @@ class TestOptionalsAlternatePrefixCharsMultipleShortArgs(ParserTestCase):
                 '+xyz',
     ]
     successes = [
-        ('', NS(x=False, y=False, z=False, debug=0)),
-        ('-x', NS(x=True, y=False, z=False, debug=0)),
-        ('+y -x', NS(x=True, y=True, z=False, debug=0)),
-        ('+yz -x', NS(x=True, y=True, z=True, debug=0)),
+        ('', NS(x=False, y=False, z=False)),
+        ('-x', NS(x=True, y=False, z=False)),
+        ('+y -x', NS(x=True, y=True, z=False)),
+        ('+yz -x', NS(x=True, y=True, z=True)),
     ]
 
 
 class TestOptionalsShortLong(ParserTestCase):
     """Test a combination of single- and double-dash option strings"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-v', '--verbose', '-n', '--noisy', action='store_true'),
     ]
     failures = ['--x --verbose', '-N', 'a', '-v x']
     successes = [
-        ('', NS(verbose=False, debug=0)),
-        ('-v', NS(verbose=True, debug=0)),
-        ('--verbose', NS(verbose=True, debug=0)),
-        ('-n', NS(verbose=True, debug=0)),
-        ('--noisy', NS(verbose=True, debug=0)),
+        ('', NS(verbose=False)),
+        ('-v', NS(verbose=True)),
+        ('--verbose', NS(verbose=True)),
+        ('-n', NS(verbose=True)),
+        ('--noisy', NS(verbose=True)),
     ]
 
 
 class TestOptionalsDest(ParserTestCase):
     """Tests various means of setting destination"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('--foo-bar'), Sig('--baz', dest='zabbaz')]
     failures = ['a']
     successes = [
-        ('--foo-bar f', NS(foo_bar='f', zabbaz=None, debug=0)),
-        ('--baz g', NS(foo_bar=None, zabbaz='g', debug=0)),
-        ('--foo-bar h --baz i', NS(foo_bar='h', zabbaz='i', debug=0)),
-        ('--baz j --foo-bar k', NS(foo_bar='k', zabbaz='j', debug=0)),
+        ('--foo-bar f', NS(foo_bar='f', zabbaz=None)),
+        ('--baz g', NS(foo_bar=None, zabbaz='g')),
+        ('--foo-bar h --baz i', NS(foo_bar='h', zabbaz='i')),
+        ('--baz j --foo-bar k', NS(foo_bar='k', zabbaz='j')),
     ]
 
 
 class TestOptionalsDefault(ParserTestCase):
     """Tests specifying a default for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x'), Sig('-y', default=42)]
     failures = ['a']
     successes = [
-        ('', NS(x=None, y=42, debug=0)),
-        ('-xx', NS(x='x', y=42, debug=0)),
-        ('-yy', NS(x=None, y='y', debug=0)),
+        ('', NS(x=None, y=42)),
+        ('-xx', NS(x='x', y=42)),
+        ('-yy', NS(x=None, y='y')),
     ]
 
 
 class TestOptionalsNargsDefault(ParserTestCase):
     """Tests not specifying the number of args for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x')]
     failures = ['a', '-x']
     successes = [
-        ('', NS(x=None, debug=0)),
-        ('-x a', NS(x='a', debug=0)),
+        ('', NS(x=None)),
+        ('-x a', NS(x='a')),
     ]
 
 
 class TestOptionalsNargs1(ParserTestCase):
     """Tests specifying 1 arg for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x', nargs=1)]
     failures = ['a', '-x']
     successes = [
-        ('', NS(x=None, debug=0)),
-        ('-x a', NS(x=['a'], debug=0)),
+        ('', NS(x=None)),
+        ('-x a', NS(x=['a'])),
     ]
 
 
 class TestOptionalsNargs3(ParserTestCase):
     """Tests specifying 3 args for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x', nargs=3)]
     failures = ['a', '-x', '-x a', '-x a b', 'a -x', 'a -x b']
     successes = [
-        ('', NS(x=None, debug=0)),
-        ('-x a b c', NS(x=['a', 'b', 'c'], debug=0)),
+        ('', NS(x=None)),
+        ('-x a b c', NS(x=['a', 'b', 'c'])),
     ]
 
 
 class TestOptionalsNargsOptional(ParserTestCase):
     """Tests specifying an Optional arg for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-w', nargs='?'),
         Sig('-x', nargs='?', const=42),
@@ -583,196 +600,210 @@ class TestOptionalsNargsOptional(ParserTestCase):
     ]
     failures = ['2']
     successes = [
-        ('', NS(w=None, x=None, y='spam', z=84, debug=0)),
-        ('-w', NS(w=None, x=None, y='spam', z=84, debug=0)),
-        ('-w 2', NS(w='2', x=None, y='spam', z=84, debug=0)),
-        ('-x', NS(w=None, x=42, y='spam', z=84, debug=0)),
-        ('-x 2', NS(w=None, x='2', y='spam', z=84, debug=0)),
-        ('-y', NS(w=None, x=None, y=None, z=84, debug=0)),
-        ('-y 2', NS(w=None, x=None, y='2', z=84, debug=0)),
-        ('-z', NS(w=None, x=None, y='spam', z=42, debug=0)),
-        ('-z 2', NS(w=None, x=None, y='spam', z=2, debug=0)),
+        ('', NS(w=None, x=None, y='spam', z=84)),
+        ('-w', NS(w=None, x=None, y='spam', z=84)),
+        ('-w 2', NS(w='2', x=None, y='spam', z=84)),
+        ('-x', NS(w=None, x=42, y='spam', z=84)),
+        ('-x 2', NS(w=None, x='2', y='spam', z=84)),
+        ('-y', NS(w=None, x=None, y=None, z=84)),
+        ('-y 2', NS(w=None, x=None, y='2', z=84)),
+        ('-z', NS(w=None, x=None, y='spam', z=42)),
+        ('-z 2', NS(w=None, x=None, y='spam', z=2)),
     ]
 
 
 class TestOptionalsNargsZeroOrMore(ParserTestCase):
     """Tests specifying args for an Optional that accepts zero or more"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', nargs='*'),
         Sig('-y', nargs='*', default='spam'),
     ]
     failures = ['a']
     successes = [
-        ('', NS(x=None, y='spam', debug=0)),
-        ('-x', NS(x=[], y='spam', debug=0)),
-        ('-x a', NS(x=['a'], y='spam', debug=0)),
-        ('-x a b', NS(x=['a', 'b'], y='spam', debug=0)),
-        ('-y', NS(x=None, y=[], debug=0)),
-        ('-y a', NS(x=None, y=['a'], debug=0)),
-        ('-y a b', NS(x=None, y=['a', 'b'], debug=0)),
+        ('', NS(x=None, y='spam')),
+        ('-x', NS(x=[], y='spam')),
+        ('-x a', NS(x=['a'], y='spam')),
+        ('-x a b', NS(x=['a', 'b'], y='spam')),
+        ('-y', NS(x=None, y=[])),
+        ('-y a', NS(x=None, y=['a'])),
+        ('-y a b', NS(x=None, y=['a', 'b'])),
     ]
 
 
 class TestOptionalsNargsOneOrMore(ParserTestCase):
     """Tests specifying args for an Optional that accepts one or more"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', nargs='+'),
         Sig('-y', nargs='+', default='spam'),
     ]
     failures = ['a', '-x', '-y', 'a -x', 'a -y b']
     successes = [
-        ('', NS(x=None, y='spam', debug=0)),
-        ('-x a', NS(x=['a'], y='spam', debug=0)),
-        ('-x a b', NS(x=['a', 'b'], y='spam', debug=0)),
-        ('-y a', NS(x=None, y=['a'], debug=0)),
-        ('-y a b', NS(x=None, y=['a', 'b'], debug=0)),
+        ('', NS(x=None, y='spam')),
+        ('-x a', NS(x=['a'], y='spam')),
+        ('-x a b', NS(x=['a', 'b'], y='spam')),
+        ('-y a', NS(x=None, y=['a'])),
+        ('-y a b', NS(x=None, y=['a', 'b'])),
     ]
 
 
 class TestOptionalsChoices(ParserTestCase):
     """Tests specifying the choices for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-f', choices='abc'),
         Sig('-g', type=int, choices=range(5))]
     failures = ['a', '-f d', '-fad', '-ga', '-g 6']
     successes = [
-        ('', NS(f=None, g=None, debug=0)),
-        ('-f a', NS(f='a', g=None, debug=0)),
-        ('-f c', NS(f='c', g=None, debug=0)),
-        ('-g 0', NS(f=None, g=0, debug=0)),
-        ('-g 03', NS(f=None, g=3, debug=0)),
-        ('-fb -g4', NS(f='b', g=4, debug=0)),
+        ('', NS(f=None, g=None)),
+        ('-f a', NS(f='a', g=None)),
+        ('-f c', NS(f='c', g=None)),
+        ('-g 0', NS(f=None, g=0)),
+        ('-g 03', NS(f=None, g=3)),
+        ('-fb -g4', NS(f='b', g=4)),
     ]
 
 
 class TestOptionalsRequired(ParserTestCase):
     """Tests an optional action that is required"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=int, required=True),
     ]
     failures = ['a', '']
     successes = [
-        ('-x 1', NS(x=1, debug=0)),
-        ('-x42', NS(x=42, debug=0)),
+        ('-x 1', NS(x=1)),
+        ('-x42', NS(x=42)),
     ]
 
 
 class TestOptionalsActionStore(ParserTestCase):
     """Tests the store action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x', action='store')]
     failures = ['a', 'a -x']
     successes = [
-        ('', NS(x=None, debug=0)),
-        ('-xfoo', NS(x='foo', debug=0)),
+        ('', NS(x=None)),
+        ('-xfoo', NS(x='foo')),
     ]
 
 
 class TestOptionalsActionStoreConst(ParserTestCase):
     """Tests the store_const action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-y', action='store_const', const=object)]
     failures = ['a']
     successes = [
-        ('', NS(y=None, debug=0)),
-        ('-y', NS(y=object, debug=0)),
+        ('', NS(y=None)),
+        ('-y', NS(y=object)),
     ]
 
 
 class TestOptionalsActionStoreFalse(ParserTestCase):
     """Tests the store_false action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-z', action='store_false')]
     failures = ['a', '-za', '-z a']
     successes = [
-        ('', NS(z=True, debug=0)),
-        ('-z', NS(z=False, debug=0)),
+        ('', NS(z=True)),
+        ('-z', NS(z=False)),
     ]
 
 
 class TestOptionalsActionStoreTrue(ParserTestCase):
     """Tests the store_true action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('--apple', action='store_true')]
     failures = ['a', '--apple=b', '--apple b']
     successes = [
-        ('', NS(apple=False, debug=0)),
-        ('--apple', NS(apple=True, debug=0)),
+        ('', NS(apple=False)),
+        ('--apple', NS(apple=True)),
     ]
 
 
 class TestOptionalsActionAppend(ParserTestCase):
     """Tests the append action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('--baz', action='append')]
     failures = ['a', '--baz', 'a --baz', '--baz a b']
     successes = [
-        ('', NS(baz=None, debug=0)),
-        ('--baz a', NS(baz=['a'], debug=0)),
-        ('--baz a --baz b', NS(baz=['a', 'b'], debug=0)),
+        ('', NS(baz=None)),
+        ('--baz a', NS(baz=['a'])),
+        ('--baz a --baz b', NS(baz=['a', 'b'])),
     ]
 
 
 class TestOptionalsActionAppendWithDefault(ParserTestCase):
     """Tests the append action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('--baz', action='append', default=['X'])]
     failures = ['a', '--baz', 'a --baz', '--baz a b']
     successes = [
-        ('', NS(baz=['X'], debug=0)),
-        ('--baz a', NS(baz=['X', 'a'], debug=0)),
-        ('--baz a --baz b', NS(baz=['X', 'a', 'b'], debug=0)),
+        ('', NS(baz=['X'])),
+        ('--baz a', NS(baz=['X', 'a'])),
+        ('--baz a --baz b', NS(baz=['X', 'a', 'b'])),
     ]
 
 
 class TestOptionalsActionAppendConst(ParserTestCase):
     """Tests the append_const action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-b', action='append_const', const=Exception),
         Sig('-c', action='append', dest='b'),
     ]
     failures = ['a', '-c', 'a -c', '-bx', '-b x']
     successes = [
-        ('', NS(b=None, debug=0)),
-        ('-b', NS(b=[Exception], debug=0)),
-        ('-b -cx -b -cyz', NS(b=[Exception, 'x', Exception, 'yz'], debug=0)),
+        ('', NS(b=None)),
+        ('-b', NS(b=[Exception])),
+        ('-b -cx -b -cyz', NS(b=[Exception, 'x', Exception, 'yz'])),
     ]
 
 
 class TestOptionalsActionAppendConstWithDefault(ParserTestCase):
     """Tests the append_const action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-b', action='append_const', const=Exception, default=['X']),
         Sig('-c', action='append', dest='b'),
     ]
     failures = ['a', '-c', 'a -c', '-bx', '-b x']
     successes = [
-        ('', NS(b=['X'], debug=0)),
-        ('-b', NS(b=['X', Exception], debug=0)),
-        ('-b -cx -b -cyz', NS(b=['X', Exception, 'x', Exception, 'yz'], debug=0)),
+        ('', NS(b=['X'])),
+        ('-b', NS(b=['X', Exception])),
+        ('-b -cx -b -cyz', NS(b=['X', Exception, 'x', Exception, 'yz'])),
     ]
 
 
 class TestOptionalsActionCount(ParserTestCase):
     """Tests the count action for an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x', action='count')]
     failures = ['a', '-x a', '-x b', '-x a -x b']
     successes = [
-        ('', NS(x=None, debug=0)),
-        ('-x', NS(x=1, debug=0)),
+        ('', NS(x=None)),
+        ('-x', NS(x=1)),
     ]
 
 
 class TestOptionalsAllowLongAbbreviation(ParserTestCase):
     """Allow long options to be abbreviated unambiguously"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('--foo'),
         Sig('--foobaz'),
@@ -780,17 +811,17 @@ class TestOptionalsAllowLongAbbreviation(ParserTestCase):
     ]
     failures = ['--foob 5', '--foob']
     successes = [
-        ('', NS(foo=None, foobaz=None, fooble=False, debug=0)),
-        ('--foo 7', NS(foo='7', foobaz=None, fooble=False, debug=0)),
-        ('--fooba a', NS(foo=None, foobaz='a', fooble=False, debug=0)),
-        ('--foobl --foo g', NS(foo='g', foobaz=None, fooble=True, debug=0)),
+        ('', NS(foo=None, foobaz=None, fooble=False)),
+        ('--foo 7', NS(foo='7', foobaz=None, fooble=False)),
+        ('--fooba a', NS(foo=None, foobaz='a', fooble=False)),
+        ('--foobl --foo g', NS(foo='g', foobaz=None, fooble=True)),
     ]
 
 
 class TestOptionalsDisallowLongAbbreviation(ParserTestCase):
     """Do not allow abbreviations of long options at all"""
 
-    parser_signature = Sig(allow_abbrev=False)
+    parser_signature = Sig(allow_abbrev=False, add_config=False, add_debug=False)
     argument_signatures = [
         Sig('--foo'),
         Sig('--foodle', action='store_true'),
@@ -798,9 +829,9 @@ class TestOptionalsDisallowLongAbbreviation(ParserTestCase):
     ]
     failures = ['-foon 3', '--foon 3', '--food', '--food --foo 2']
     successes = [
-        ('', NS(foo=None, foodle=False, foonly=None, debug=0)),
-        ('--foo 3', NS(foo='3', foodle=False, foonly=None, debug=0)),
-        ('--foonly 7 --foodle --foo 2', NS(foo='2', foodle=True, foonly='7', debug=0)),
+        ('', NS(foo=None, foodle=False, foonly=None)),
+        ('--foo 3', NS(foo='3', foodle=False, foonly=None)),
+        ('--foonly 7 --foodle --foo 2', NS(foo='2', foodle=True, foonly='7')),
     ]
 
 # ================
@@ -810,87 +841,95 @@ class TestOptionalsDisallowLongAbbreviation(ParserTestCase):
 class TestPositionalsNargsNone(ParserTestCase):
     """Test a Positional that doesn't specify nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo')]
     failures = ['', '-x', 'a b']
     successes = [
-        ('a', NS(foo='a', debug=0)),
+        ('a', NS(foo='a')),
     ]
 
 
 class TestPositionalsNargs1(ParserTestCase):
     """Test a Positional that specifies an nargs of 1"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs=1)]
     failures = ['', '-x', 'a b']
     successes = [
-        ('a', NS(foo=['a'], debug=0)),
+        ('a', NS(foo=['a'])),
     ]
 
 
 class TestPositionalsNargs2(ParserTestCase):
     """Test a Positional that specifies an nargs of 2"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs=2)]
     failures = ['', 'a', '-x', 'a b c']
     successes = [
-        ('a b', NS(foo=['a', 'b'], debug=0)),
+        ('a b', NS(foo=['a', 'b'])),
     ]
 
 
 class TestPositionalsNargsZeroOrMore(ParserTestCase):
     """Test a Positional that specifies unlimited nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='*')]
     failures = ['-x']
     successes = [
-        ('', NS(foo=[], debug=0)),
-        ('a', NS(foo=['a'], debug=0)),
-        ('a b', NS(foo=['a', 'b'], debug=0)),
+        ('', NS(foo=[])),
+        ('a', NS(foo=['a'])),
+        ('a b', NS(foo=['a', 'b'])),
     ]
 
 
 class TestPositionalsNargsZeroOrMoreDefault(ParserTestCase):
     """Test a Positional that specifies unlimited nargs and a default"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='*', default='bar')]
     failures = ['-x']
     successes = [
-        ('', NS(foo='bar', debug=0)),
-        ('a', NS(foo=['a'], debug=0)),
-        ('a b', NS(foo=['a', 'b'], debug=0)),
+        ('', NS(foo='bar')),
+        ('a', NS(foo=['a'])),
+        ('a b', NS(foo=['a', 'b'])),
     ]
 
 
 class TestPositionalsNargsOneOrMore(ParserTestCase):
     """Test a Positional that specifies one or more nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='+')]
     failures = ['', '-x']
     successes = [
-        ('a', NS(foo=['a'], debug=0)),
-        ('a b', NS(foo=['a', 'b'], debug=0)),
+        ('a', NS(foo=['a'])),
+        ('a b', NS(foo=['a', 'b'])),
     ]
 
 
 class TestPositionalsNargsOptional(ParserTestCase):
     """Tests an Optional Positional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='?')]
     failures = ['-x', 'a b']
     successes = [
-        ('', NS(foo=None, debug=0)),
-        ('a', NS(foo='a', debug=0)),
+        ('', NS(foo=None)),
+        ('a', NS(foo='a')),
     ]
 
 
 class TestPositionalsNargsOptionalDefault(ParserTestCase):
     """Tests an Optional Positional with a default value"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='?', default=42)]
     failures = ['-x', 'a b']
     successes = [
-        ('', NS(foo=42, debug=0)),
-        ('a', NS(foo='a', debug=0)),
+        ('', NS(foo=42)),
+        ('a', NS(foo='a')),
     ]
 
 
@@ -899,183 +938,200 @@ class TestPositionalsNargsOptionalConvertedDefault(ParserTestCase):
     that needs to be converted to the appropriate type.
     """
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('foo', nargs='?', type=int, default='42'),
     ]
     failures = ['-x', 'a b', '1 2']
     successes = [
-        ('', NS(foo=42, debug=0)),
-        ('1', NS(foo=1, debug=0)),
+        ('', NS(foo=42)),
+        ('1', NS(foo=1)),
     ]
 
 
 class TestPositionalsNargsNoneNone(ParserTestCase):
     """Test two Positionals that don't specify nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo'), Sig('bar')]
     failures = ['', '-x', 'a', 'a b c']
     successes = [
-        ('a b', NS(foo='a', bar='b', debug=0)),
+        ('a b', NS(foo='a', bar='b')),
     ]
 
 
 class TestPositionalsNargsNone1(ParserTestCase):
     """Test a Positional with no nargs followed by one with 1"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo'), Sig('bar', nargs=1)]
     failures = ['', '--foo', 'a', 'a b c']
     successes = [
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
+        ('a b', NS(foo='a', bar=['b'])),
     ]
 
 
 class TestPositionalsNargs2None(ParserTestCase):
     """Test a Positional with 2 nargs followed by one with none"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs=2), Sig('bar')]
     failures = ['', '--foo', 'a', 'a b', 'a b c d']
     successes = [
-        ('a b c', NS(foo=['a', 'b'], bar='c', debug=0)),
+        ('a b c', NS(foo=['a', 'b'], bar='c')),
     ]
 
 
 class TestPositionalsNargsNoneZeroOrMore(ParserTestCase):
     """Test a Positional with no nargs followed by one with unlimited"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo'), Sig('bar', nargs='*')]
     failures = ['', '--foo']
     successes = [
-        ('a', NS(foo='a', bar=[], debug=0)),
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
-        ('a b c', NS(foo='a', bar=['b', 'c'], debug=0)),
+        ('a', NS(foo='a', bar=[])),
+        ('a b', NS(foo='a', bar=['b'])),
+        ('a b c', NS(foo='a', bar=['b', 'c'])),
     ]
 
 
 class TestPositionalsNargsNoneOneOrMore(ParserTestCase):
     """Test a Positional with no nargs followed by one with one or more"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo'), Sig('bar', nargs='+')]
     failures = ['', '--foo', 'a']
     successes = [
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
-        ('a b c', NS(foo='a', bar=['b', 'c'], debug=0)),
+        ('a b', NS(foo='a', bar=['b'])),
+        ('a b c', NS(foo='a', bar=['b', 'c'])),
     ]
 
 
 class TestPositionalsNargsNoneOptional(ParserTestCase):
     """Test a Positional with no nargs followed by one with an Optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo'), Sig('bar', nargs='?')]
     failures = ['', '--foo', 'a b c']
     successes = [
-        ('a', NS(foo='a', bar=None, debug=0)),
-        ('a b', NS(foo='a', bar='b', debug=0)),
+        ('a', NS(foo='a', bar=None)),
+        ('a b', NS(foo='a', bar='b')),
     ]
 
 
 class TestPositionalsNargsZeroOrMoreNone(ParserTestCase):
     """Test a Positional with unlimited nargs followed by one with none"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='*'), Sig('bar')]
     failures = ['', '--foo']
     successes = [
-        ('a', NS(foo=[], bar='a', debug=0)),
-        ('a b', NS(foo=['a'], bar='b', debug=0)),
-        ('a b c', NS(foo=['a', 'b'], bar='c', debug=0)),
+        ('a', NS(foo=[], bar='a')),
+        ('a b', NS(foo=['a'], bar='b')),
+        ('a b c', NS(foo=['a', 'b'], bar='c')),
     ]
 
 
 class TestPositionalsNargsOneOrMoreNone(ParserTestCase):
     """Test a Positional with one or more nargs followed by one with none"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='+'), Sig('bar')]
     failures = ['', '--foo', 'a']
     successes = [
-        ('a b', NS(foo=['a'], bar='b', debug=0)),
-        ('a b c', NS(foo=['a', 'b'], bar='c', debug=0)),
+        ('a b', NS(foo=['a'], bar='b')),
+        ('a b c', NS(foo=['a', 'b'], bar='c')),
     ]
 
 
 class TestPositionalsNargsOptionalNone(ParserTestCase):
     """Test a Positional with an Optional nargs followed by one with none"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='?', default=42), Sig('bar')]
     failures = ['', '--foo', 'a b c']
     successes = [
-        ('a', NS(foo=42, bar='a', debug=0)),
-        ('a b', NS(foo='a', bar='b', debug=0)),
+        ('a', NS(foo=42, bar='a')),
+        ('a b', NS(foo='a', bar='b')),
     ]
 
 
 class TestPositionalsNargs2ZeroOrMore(ParserTestCase):
     """Test a Positional with 2 nargs followed by one with unlimited"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs=2), Sig('bar', nargs='*')]
     failures = ['', '--foo', 'a']
     successes = [
-        ('a b', NS(foo=['a', 'b'], bar=[], debug=0)),
-        ('a b c', NS(foo=['a', 'b'], bar=['c'], debug=0)),
+        ('a b', NS(foo=['a', 'b'], bar=[])),
+        ('a b c', NS(foo=['a', 'b'], bar=['c'])),
     ]
 
 
 class TestPositionalsNargs2OneOrMore(ParserTestCase):
     """Test a Positional with 2 nargs followed by one with one or more"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs=2), Sig('bar', nargs='+')]
     failures = ['', '--foo', 'a', 'a b']
     successes = [
-        ('a b c', NS(foo=['a', 'b'], bar=['c'], debug=0)),
+        ('a b c', NS(foo=['a', 'b'], bar=['c'])),
     ]
 
 
 class TestPositionalsNargs2Optional(ParserTestCase):
     """Test a Positional with 2 nargs followed by one optional"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs=2), Sig('bar', nargs='?')]
     failures = ['', '--foo', 'a', 'a b c d']
     successes = [
-        ('a b', NS(foo=['a', 'b'], bar=None, debug=0)),
-        ('a b c', NS(foo=['a', 'b'], bar='c', debug=0)),
+        ('a b', NS(foo=['a', 'b'], bar=None)),
+        ('a b c', NS(foo=['a', 'b'], bar='c')),
     ]
 
 
 class TestPositionalsNargsZeroOrMore1(ParserTestCase):
     """Test a Positional with unlimited nargs followed by one with 1"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='*'), Sig('bar', nargs=1)]
     failures = ['', '--foo', ]
     successes = [
-        ('a', NS(foo=[], bar=['a'], debug=0)),
-        ('a b', NS(foo=['a'], bar=['b'], debug=0)),
-        ('a b c', NS(foo=['a', 'b'], bar=['c'], debug=0)),
+        ('a', NS(foo=[], bar=['a'])),
+        ('a b', NS(foo=['a'], bar=['b'])),
+        ('a b c', NS(foo=['a', 'b'], bar=['c'])),
     ]
 
 
 class TestPositionalsNargsOneOrMore1(ParserTestCase):
     """Test a Positional with one or more nargs followed by one with 1"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='+'), Sig('bar', nargs=1)]
     failures = ['', '--foo', 'a']
     successes = [
-        ('a b', NS(foo=['a'], bar=['b'], debug=0)),
-        ('a b c', NS(foo=['a', 'b'], bar=['c'], debug=0)),
+        ('a b', NS(foo=['a'], bar=['b'])),
+        ('a b c', NS(foo=['a', 'b'], bar=['c'])),
     ]
 
 
 class TestPositionalsNargsOptional1(ParserTestCase):
     """Test a Positional with an Optional nargs followed by one with 1"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='?'), Sig('bar', nargs=1)]
     failures = ['', '--foo', 'a b c']
     successes = [
-        ('a', NS(foo=None, bar=['a'], debug=0)),
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
+        ('a', NS(foo=None, bar=['a'])),
+        ('a b', NS(foo='a', bar=['b'])),
     ]
 
 
 class TestPositionalsNargsNoneZeroOrMore1(ParserTestCase):
     """Test three Positionals: no nargs, unlimited nargs and 1 nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('foo'),
         Sig('bar', nargs='*'),
@@ -1083,14 +1139,15 @@ class TestPositionalsNargsNoneZeroOrMore1(ParserTestCase):
     ]
     failures = ['', '--foo', 'a']
     successes = [
-        ('a b', NS(foo='a', bar=[], baz=['b'], debug=0)),
-        ('a b c', NS(foo='a', bar=['b'], baz=['c'], debug=0)),
+        ('a b', NS(foo='a', bar=[], baz=['b'])),
+        ('a b c', NS(foo='a', bar=['b'], baz=['c'])),
     ]
 
 
 class TestPositionalsNargsNoneOneOrMore1(ParserTestCase):
     """Test three Positionals: no nargs, one or more nargs and 1 nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('foo'),
         Sig('bar', nargs='+'),
@@ -1098,14 +1155,15 @@ class TestPositionalsNargsNoneOneOrMore1(ParserTestCase):
     ]
     failures = ['', '--foo', 'a', 'b']
     successes = [
-        ('a b c', NS(foo='a', bar=['b'], baz=['c'], debug=0)),
-        ('a b c d', NS(foo='a', bar=['b', 'c'], baz=['d'], debug=0)),
+        ('a b c', NS(foo='a', bar=['b'], baz=['c'])),
+        ('a b c d', NS(foo='a', bar=['b', 'c'], baz=['d'])),
     ]
 
 
 class TestPositionalsNargsNoneOptional1(ParserTestCase):
     """Test three Positionals: no nargs, optional narg and 1 nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('foo'),
         Sig('bar', nargs='?', default=0.625),
@@ -1113,83 +1171,89 @@ class TestPositionalsNargsNoneOptional1(ParserTestCase):
     ]
     failures = ['', '--foo', 'a']
     successes = [
-        ('a b', NS(foo='a', bar=0.625, baz=['b'], debug=0)),
-        ('a b c', NS(foo='a', bar='b', baz=['c'], debug=0)),
+        ('a b', NS(foo='a', bar=0.625, baz=['b'])),
+        ('a b c', NS(foo='a', bar='b', baz=['c'])),
     ]
 
 
 class TestPositionalsNargsOptionalOptional(ParserTestCase):
     """Test two optional nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('foo', nargs='?'),
         Sig('bar', nargs='?', default=42),
     ]
     failures = ['--foo', 'a b c']
     successes = [
-        ('', NS(foo=None, bar=42, debug=0)),
-        ('a', NS(foo='a', bar=42, debug=0)),
-        ('a b', NS(foo='a', bar='b', debug=0)),
+        ('', NS(foo=None, bar=42)),
+        ('a', NS(foo='a', bar=42)),
+        ('a b', NS(foo='a', bar='b')),
     ]
 
 
 class TestPositionalsNargsOptionalZeroOrMore(ParserTestCase):
     """Test an Optional narg followed by unlimited nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='?'), Sig('bar', nargs='*')]
     failures = ['--foo']
     successes = [
-        ('', NS(foo=None, bar=[], debug=0)),
-        ('a', NS(foo='a', bar=[], debug=0)),
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
-        ('a b c', NS(foo='a', bar=['b', 'c'], debug=0)),
+        ('', NS(foo=None, bar=[])),
+        ('a', NS(foo='a', bar=[])),
+        ('a b', NS(foo='a', bar=['b'])),
+        ('a b c', NS(foo='a', bar=['b', 'c'])),
     ]
 
 
 class TestPositionalsNargsOptionalOneOrMore(ParserTestCase):
     """Test an Optional narg followed by one or more nargs"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('foo', nargs='?'), Sig('bar', nargs='+')]
     failures = ['', '--foo']
     successes = [
-        ('a', NS(foo=None, bar=['a'], debug=0)),
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
-        ('a b c', NS(foo='a', bar=['b', 'c'], debug=0)),
+        ('a', NS(foo=None, bar=['a'])),
+        ('a b', NS(foo='a', bar=['b'])),
+        ('a b c', NS(foo='a', bar=['b', 'c'])),
     ]
 
 
 class TestPositionalsChoicesString(ParserTestCase):
     """Test a set of single-character choices"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('spam', choices=set('abcdefg'))]
     failures = ['', '--foo', 'h', '42', 'ef']
     successes = [
-        ('a', NS(spam='a', debug=0)),
-        ('g', NS(spam='g', debug=0)),
+        ('a', NS(spam='a')),
+        ('g', NS(spam='g')),
     ]
 
 
 class TestPositionalsChoicesInt(ParserTestCase):
     """Test a set of integer choices"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('spam', type=int, choices=range(20))]
     failures = ['', '--foo', 'h', '42', 'ef']
     successes = [
-        ('4', NS(spam=4, debug=0)),
-        ('15', NS(spam=15, debug=0)),
+        ('4', NS(spam=4)),
+        ('15', NS(spam=15)),
     ]
 
 
 class TestPositionalsActionAppend(ParserTestCase):
     """Test the 'append' action"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('spam', action='append'),
         Sig('spam', action='append', nargs=2),
     ]
     failures = ['', '--foo', 'a', 'a b', 'a b c d']
     successes = [
-        ('a b c', NS(spam=['a', ['b', 'c']], debug=0)),
+        ('a b c', NS(spam=['a', ['b', 'c']])),
     ]
 
 # ========================================
@@ -1199,58 +1263,61 @@ class TestPositionalsActionAppend(ParserTestCase):
 class TestOptionalsNumericAndPositionals(ParserTestCase):
     """Tests negative number args when numeric options are present"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('x', nargs='?'),
         Sig('-4', dest='y', action='store_true'),
     ]
     failures = ['-2', '-315']
     successes = [
-        ('', NS(x=None, y=False, debug=0)),
-        ('a', NS(x='a', y=False, debug=0)),
-        ('-4', NS(x=None, y=True, debug=0)),
-        ('-4 a', NS(x='a', y=True, debug=0)),
+        ('', NS(x=None, y=False)),
+        ('a', NS(x='a', y=False)),
+        ('-4', NS(x=None, y=True)),
+        ('-4 a', NS(x='a', y=True)),
     ]
 
 
 class TestOptionalsAlmostNumericAndPositionals(ParserTestCase):
     """Tests negative number args when almost numeric options are present"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('x', nargs='?'),
         Sig('-k4', dest='y', action='store_true'),
     ]
     failures = ['-k3']
     successes = [
-        ('', NS(x=None, y=False, debug=0)),
-        ('-2', NS(x='-2', y=False, debug=0)),
-        ('a', NS(x='a', y=False, debug=0)),
-        ('-k4', NS(x=None, y=True, debug=0)),
-        ('-k4 a', NS(x='a', y=True, debug=0)),
+        ('', NS(x=None, y=False)),
+        ('-2', NS(x='-2', y=False)),
+        ('a', NS(x='a', y=False)),
+        ('-k4', NS(x=None, y=True)),
+        ('-k4 a', NS(x='a', y=True)),
     ]
 
 
 class TestEmptyAndSpaceContainingArguments(ParserTestCase):
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('x', nargs='?'),
         Sig('-y', '--yyy', dest='y'),
     ]
     failures = ['-y']
     successes = [
-        ([''], NS(x='', y=None, debug=0)),
-        (['a badger'], NS(x='a badger', y=None, debug=0)),
-        (['-a badger'], NS(x='-a badger', y=None, debug=0)),
-        (['-y', ''], NS(x=None, y='', debug=0)),
-        (['-y', 'a badger'], NS(x=None, y='a badger', debug=0)),
-        (['-y', '-a badger'], NS(x=None, y='-a badger', debug=0)),
-        (['--yyy=a badger'], NS(x=None, y='a badger', debug=0)),
-        (['--yyy=-a badger'], NS(x=None, y='-a badger', debug=0)),
+        ([''], NS(x='', y=None)),
+        (['a badger'], NS(x='a badger', y=None)),
+        (['-a badger'], NS(x='-a badger', y=None)),
+        (['-y', ''], NS(x=None, y='')),
+        (['-y', 'a badger'], NS(x=None, y='a badger')),
+        (['-y', '-a badger'], NS(x=None, y='-a badger')),
+        (['--yyy=a badger'], NS(x=None, y='a badger')),
+        (['--yyy=-a badger'], NS(x=None, y='-a badger')),
     ]
 
 
 class TestPrefixCharacterOnlyArguments(ParserTestCase):
 
-    parser_signature = Sig(prefix_chars='-+')
+    parser_signature = Sig(prefix_chars='-+', add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-', dest='x', nargs='?', const='badger'),
         Sig('+', dest='y', type=int, default=42),
@@ -1258,47 +1325,50 @@ class TestPrefixCharacterOnlyArguments(ParserTestCase):
     ]
     failures = ['-y', '+ -']
     successes = [
-        ('', NS(x=None, y=42, z=False, debug=0)),
-        ('-', NS(x='badger', y=42, z=False, debug=0)),
-        ('- X', NS(x='X', y=42, z=False, debug=0)),
-        ('+ -3', NS(x=None, y=-3, z=False, debug=0)),
-        ('-+-', NS(x=None, y=42, z=True, debug=0)),
-        ('- ===', NS(x='===', y=42, z=False, debug=0)),
+        ('', NS(x=None, y=42, z=False)),
+        ('-', NS(x='badger', y=42, z=False)),
+        ('- X', NS(x='X', y=42, z=False)),
+        ('+ -3', NS(x=None, y=-3, z=False)),
+        ('-+-', NS(x=None, y=42, z=True)),
+        ('- ===', NS(x='===', y=42, z=False)),
     ]
 
 
 class TestNargsZeroOrMore(ParserTestCase):
     """Tests specifying args for an Optional that accepts zero or more"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('-x', nargs='*'), Sig('y', nargs='*')]
     failures = []
     successes = [
-        ('', NS(x=None, y=[], debug=0)),
-        ('-x', NS(x=[], y=[], debug=0)),
-        ('-x a', NS(x=['a'], y=[], debug=0)),
-        ('-x a -- b', NS(x=['a'], y=['b'], debug=0)),
-        ('a', NS(x=None, y=['a'], debug=0)),
-        ('a -x', NS(x=[], y=['a'], debug=0)),
-        ('a -x b', NS(x=['b'], y=['a'], debug=0)),
+        ('', NS(x=None, y=[])),
+        ('-x', NS(x=[], y=[])),
+        ('-x a', NS(x=['a'], y=[])),
+        ('-x a -- b', NS(x=['a'], y=['b'])),
+        ('a', NS(x=None, y=['a'])),
+        ('a -x', NS(x=[], y=['a'])),
+        ('a -x b', NS(x=['b'], y=['a'])),
     ]
 
 
 class TestNargsRemainder(ParserTestCase):
     """Tests specifying a positional with nargs=REMAINDER"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [Sig('x'), Sig('y', nargs='...'), Sig('-z')]
     failures = ['', '-z', '-z Z']
     successes = [
-        ('X', NS(x='X', y=[], z=None, debug=0)),
-        ('-z Z X', NS(x='X', y=[], z='Z', debug=0)),
-        ('X A B -z Z', NS(x='X', y=['A', 'B', '-z', 'Z'], z=None, debug=0)),
-        ('X Y --foo', NS(x='X', y=['Y', '--foo'], z=None, debug=0)),
+        ('X', NS(x='X', y=[], z=None)),
+        ('-z Z X', NS(x='X', y=[], z='Z')),
+        ('X A B -z Z', NS(x='X', y=['A', 'B', '-z', 'Z'], z=None)),
+        ('X Y --foo', NS(x='X', y=['Y', '--foo'], z=None)),
     ]
 
 
 class TestOptionLike(ParserTestCase):
     """Tests options that may or may not be arguments"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=float),
         Sig('-3', type=float, dest='y'),
@@ -1309,23 +1379,24 @@ class TestOptionLike(ParserTestCase):
                 '-x -2.5', '-x -2.5 a', '-3 -.5',
                 'a x -1', '-x -1 a', '-3 -1 a']
     successes = [
-        ('', NS(x=None, y=None, z=[], debug=0)),
-        ('-x 2.5', NS(x=2.5, y=None, z=[], debug=0)),
-        ('-x 2.5 a', NS(x=2.5, y=None, z=['a'], debug=0)),
-        ('-3.5', NS(x=None, y=0.5, z=[], debug=0)),
-        ('-3-.5', NS(x=None, y=-0.5, z=[], debug=0)),
-        ('-3 .5', NS(x=None, y=0.5, z=[], debug=0)),
-        ('a -3.5', NS(x=None, y=0.5, z=['a'], debug=0)),
-        ('a', NS(x=None, y=None, z=['a'], debug=0)),
-        ('a -x 1', NS(x=1.0, y=None, z=['a'], debug=0)),
-        ('-x 1 a', NS(x=1.0, y=None, z=['a'], debug=0)),
-        ('-3 1 a', NS(x=None, y=1.0, z=['a'], debug=0)),
+        ('', NS(x=None, y=None, z=[])),
+        ('-x 2.5', NS(x=2.5, y=None, z=[])),
+        ('-x 2.5 a', NS(x=2.5, y=None, z=['a'])),
+        ('-3.5', NS(x=None, y=0.5, z=[])),
+        ('-3-.5', NS(x=None, y=-0.5, z=[])),
+        ('-3 .5', NS(x=None, y=0.5, z=[])),
+        ('a -3.5', NS(x=None, y=0.5, z=['a'])),
+        ('a', NS(x=None, y=None, z=['a'])),
+        ('a -x 1', NS(x=1.0, y=None, z=['a'])),
+        ('-x 1 a', NS(x=1.0, y=None, z=['a'])),
+        ('-3 1 a', NS(x=None, y=1.0, z=['a'])),
     ]
 
 
 class TestDefaultSuppress(ParserTestCase):
     """Test actions with suppressed defaults"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('foo', nargs='?', default=pyapputil.argutil.SUPPRESS),
         Sig('bar', nargs='*', default=pyapputil.argutil.SUPPRESS),
@@ -1333,19 +1404,19 @@ class TestDefaultSuppress(ParserTestCase):
     ]
     failures = ['-x']
     successes = [
-        ('', NS(debug=0)),
-        ('a', NS(foo='a', debug=0)),
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
-        ('--baz', NS(baz=True, debug=0)),
-        ('a --baz', NS(foo='a', baz=True, debug=0)),
-        ('--baz a b', NS(foo='a', bar=['b'], baz=True, debug=0)),
+        ('', NS()),
+        ('a', NS(foo='a')),
+        ('a b', NS(foo='a', bar=['b'])),
+        ('--baz', NS(baz=True)),
+        ('a --baz', NS(foo='a', baz=True)),
+        ('--baz a b', NS(foo='a', bar=['b'], baz=True)),
     ]
 
 
 class TestParserDefaultSuppress(ParserTestCase):
     """Test actions with a parser-level default of SUPPRESS"""
 
-    parser_signature = Sig(argument_default=pyapputil.argutil.SUPPRESS)
+    parser_signature = Sig(argument_default=pyapputil.argutil.SUPPRESS, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('foo', nargs='?'),
         Sig('bar', nargs='*'),
@@ -1353,19 +1424,19 @@ class TestParserDefaultSuppress(ParserTestCase):
     ]
     failures = ['-x']
     successes = [
-        ('', NS(debug=0)),
-        ('a', NS(foo='a', debug=0)),
-        ('a b', NS(foo='a', bar=['b'], debug=0)),
-        ('--baz', NS(baz=True, debug=0)),
-        ('a --baz', NS(foo='a', baz=True, debug=0)),
-        ('--baz a b', NS(foo='a', bar=['b'], baz=True, debug=0)),
+        ('', NS()),
+        ('a', NS(foo='a')),
+        ('a b', NS(foo='a', bar=['b'])),
+        ('--baz', NS(baz=True)),
+        ('a --baz', NS(foo='a', baz=True)),
+        ('--baz a b', NS(foo='a', bar=['b'], baz=True)),
     ]
 
 
 class TestParserDefault42(ParserTestCase):
     """Test actions with a parser-level default of 42"""
 
-    parser_signature = Sig(argument_default=42)
+    parser_signature = Sig(argument_default=42, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--version', action='version', version='1.0'),
         Sig('foo', nargs='?'),
@@ -1374,12 +1445,12 @@ class TestParserDefault42(ParserTestCase):
     ]
     failures = ['-x']
     successes = [
-        ('', NS(foo=42, bar=42, baz=42, version=42, debug=0)),
-        ('a', NS(foo='a', bar=42, baz=42, version=42, debug=0)),
-        ('a b', NS(foo='a', bar=['b'], baz=42, version=42, debug=0)),
-        ('--baz', NS(foo=42, bar=42, baz=True, version=42, debug=0)),
-        ('a --baz', NS(foo='a', bar=42, baz=True, version=42, debug=0)),
-        ('--baz a b', NS(foo='a', bar=['b'], baz=True, version=42, debug=0)),
+        ('', NS(foo=42, bar=42, baz=42, version=42)),
+        ('a', NS(foo='a', bar=42, baz=42, version=42)),
+        ('a b', NS(foo='a', bar=['b'], baz=42, version=42)),
+        ('--baz', NS(foo=42, bar=42, baz=True, version=42)),
+        ('a --baz', NS(foo='a', bar=42, baz=True, version=42)),
+        ('--baz a b', NS(foo='a', bar=['b'], baz=True, version=42)),
     ]
 
 
@@ -1400,7 +1471,7 @@ class TestArgumentsFromFile(TempDirMixin, ParserTestCase):
             file.write(text)
             file.close()
 
-    parser_signature = Sig(fromfile_prefix_chars='@')
+    parser_signature = Sig(fromfile_prefix_chars='@', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-a'),
         Sig('x'),
@@ -1408,13 +1479,13 @@ class TestArgumentsFromFile(TempDirMixin, ParserTestCase):
     ]
     failures = ['', '-b', 'X', '@invalid', '@missing']
     successes = [
-        ('X Y', NS(a=None, x='X', y=['Y'], debug=0)),
-        ('X -a A Y Z', NS(a='A', x='X', y=['Y', 'Z'], debug=0)),
-        ('@hello X', NS(a=None, x='hello world!', y=['X'], debug=0)),
-        ('X @hello', NS(a=None, x='X', y=['hello world!'], debug=0)),
-        ('-a B @recursive Y Z', NS(a='A', x='hello world!', y=['Y', 'Z'], debug=0)),
-        ('X @recursive Z -a B', NS(a='B', x='X', y=['hello world!', 'Z'], debug=0)),
-        (["-a", "", "X", "Y"], NS(a='', x='X', y=['Y'], debug=0)),
+        ('X Y', NS(a=None, x='X', y=['Y'])),
+        ('X -a A Y Z', NS(a='A', x='X', y=['Y', 'Z'])),
+        ('@hello X', NS(a=None, x='hello world!', y=['X'])),
+        ('X @hello', NS(a=None, x='X', y=['hello world!'])),
+        ('-a B @recursive Y Z', NS(a='A', x='hello world!', y=['Y', 'Z'])),
+        ('X @recursive Z -a B', NS(a='B', x='X', y=['hello world!', 'Z'])),
+        (["-a", "", "X", "Y"], NS(a='', x='X', y=['Y'])),
     ]
 
 
@@ -1439,13 +1510,13 @@ class TestArgumentsFromFileConverter(TempDirMixin, ParserTestCase):
                     continue
                 yield arg
     parser_class = FromFileConverterArgumentParser
-    parser_signature = Sig(fromfile_prefix_chars='@')
+    parser_signature = Sig(fromfile_prefix_chars='@', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('y', nargs='+'),
     ]
     failures = []
     successes = [
-        ('@hello X', NS(y=['hello', 'world!', 'X'], debug=0)),
+        ('@hello X', NS(y=['hello', 'world!', 'X'])),
     ]
 
 
@@ -1505,17 +1576,18 @@ class TestFileTypeR(TempDirMixin, ParserTestCase):
             file.close()
         self.create_readonly_file(u'readonly')
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=pyapputil.argutil.FileType()),
         Sig('spam', type=pyapputil.argutil.FileType('r')),
     ]
     failures = ['-x', '', 'non-existent-file.txt']
     successes = [
-        ('foo', NS(x=None, spam=RFile('foo'), debug=0)),
-        ('-x foo bar', NS(x=RFile('foo'), spam=RFile('bar'), debug=0)),
-        ('bar -x foo', NS(x=RFile('foo'), spam=RFile('bar'), debug=0)),
-        ('-x - -', NS(x=sys.stdin, spam=sys.stdin, debug=0)),
-        ('readonly', NS(x=None, spam=RFile('readonly'), debug=0)),
+        ('foo', NS(x=None, spam=RFile('foo'))),
+        ('-x foo bar', NS(x=RFile('foo'), spam=RFile('bar'))),
+        ('bar -x foo', NS(x=RFile('foo'), spam=RFile('bar'))),
+        ('-x - -', NS(x=sys.stdin, spam=sys.stdin)),
+        ('readonly', NS(x=None, spam=RFile('readonly'))),
     ]
 
 class TestFileTypeDefaults(TempDirMixin, ParserTestCase):
@@ -1526,13 +1598,14 @@ class TestFileTypeDefaults(TempDirMixin, ParserTestCase):
         file.write(u'good')
         file.close()
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-c', type=pyapputil.argutil.FileType('r'), default='no-file.txt'),
     ]
     # should provoke no such file error
     failures = ['']
     # should not provoke error because default file is created
-    successes = [('-c good', NS(c=RFile('good'), debug=0))]
+    successes = [('-c good', NS(c=RFile('good')))]
 
 
 class TestFileTypeRB(TempDirMixin, ParserTestCase):
@@ -1545,16 +1618,17 @@ class TestFileTypeRB(TempDirMixin, ParserTestCase):
             file.write(file_name)
             file.close()
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=pyapputil.argutil.FileType('rb')),
         Sig('spam', type=pyapputil.argutil.FileType('rb')),
     ]
     failures = ['-x', '']
     successes = [
-        ('foo', NS(x=None, spam=RFile('foo'), debug=0)),
-        ('-x foo bar', NS(x=RFile('foo'), spam=RFile('bar'), debug=0)),
-        ('bar -x foo', NS(x=RFile('foo'), spam=RFile('bar'), debug=0)),
-        ('-x - -', NS(x=sys.stdin, spam=sys.stdin, debug=0)),
+        ('foo', NS(x=None, spam=RFile('foo'))),
+        ('-x foo bar', NS(x=RFile('foo'), spam=RFile('bar'))),
+        ('bar -x foo', NS(x=RFile('foo'), spam=RFile('bar'))),
+        ('-x - -', NS(x=sys.stdin, spam=sys.stdin)),
     ]
 
 
@@ -1584,31 +1658,33 @@ class TestFileTypeW(TempDirMixin, ParserTestCase):
         super(TestFileTypeW, self).setUp()
         self.create_readonly_file(u'readonly')
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=pyapputil.argutil.FileType('w')),
         Sig('spam', type=pyapputil.argutil.FileType('w')),
     ]
     failures = ['-x', '', 'readonly']
     successes = [
-        ('foo', NS(x=None, spam=WFile('foo'), debug=0)),
-        ('-x foo bar', NS(x=WFile('foo'), spam=WFile('bar'), debug=0)),
-        ('bar -x foo', NS(x=WFile('foo'), spam=WFile('bar'), debug=0)),
-        ('-x - -', NS(x=sys.stdout, spam=sys.stdout, debug=0)),
+        ('foo', NS(x=None, spam=WFile('foo'))),
+        ('-x foo bar', NS(x=WFile('foo'), spam=WFile('bar'))),
+        ('bar -x foo', NS(x=WFile('foo'), spam=WFile('bar'))),
+        ('-x - -', NS(x=sys.stdout, spam=sys.stdout)),
     ]
 
 
 class TestFileTypeWB(TempDirMixin, ParserTestCase):
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=pyapputil.argutil.FileType('wb')),
         Sig('spam', type=pyapputil.argutil.FileType('wb')),
     ]
     failures = ['-x', '']
     successes = [
-        ('foo', NS(x=None, spam=WFile('foo'), debug=0)),
-        ('-x foo bar', NS(x=WFile('foo'), spam=WFile('bar'), debug=0)),
-        ('bar -x foo', NS(x=WFile('foo'), spam=WFile('bar'), debug=0)),
-        ('-x - -', NS(x=sys.stdout, spam=sys.stdout, debug=0)),
+        ('foo', NS(x=None, spam=WFile('foo'))),
+        ('-x foo bar', NS(x=WFile('foo'), spam=WFile('bar'))),
+        ('bar -x foo', NS(x=WFile('foo'), spam=WFile('bar'))),
+        ('-x - -', NS(x=sys.stdout, spam=sys.stdout)),
     ]
 
 
@@ -1633,15 +1709,16 @@ class TestFileTypeOpenArgs(TestCase):
 class TestTypeCallable(ParserTestCase):
     """Test some callables as option/argument types"""
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('--eggs', type=complex),
         Sig('spam', type=float),
     ]
     failures = ['a', '42j', '--eggs a', '--eggs 2i']
     successes = [
-        ('--eggs=42 42', NS(eggs=42, spam=42.0, debug=0)),
-        ('--eggs 2j -- -1.5', NS(eggs=2j, spam=-1.5, debug=0)),
-        ('1024.675', NS(eggs=None, spam=1024.675, debug=0)),
+        ('--eggs=42 42', NS(eggs=42, spam=42.0)),
+        ('--eggs 2j -- -1.5', NS(eggs=2j, spam=-1.5)),
+        ('1024.675', NS(eggs=None, spam=1024.675)),
     ]
 
 
@@ -1656,14 +1733,15 @@ class TestTypeUserDefined(ParserTestCase):
         def __eq__(self, other):
             return (type(self), self.value) == (type(other), other.value)
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=MyType),
         Sig('spam', type=MyType),
     ]
     failures = []
     successes = [
-        ('a -x b', NS(x=MyType('b'), spam=MyType('a'), debug=0)),
-        ('-xf g', NS(x=MyType('f'), spam=MyType('g'), debug=0)),
+        ('a -x b', NS(x=MyType('b'), spam=MyType('a'))),
+        ('-xf g', NS(x=MyType('f'), spam=MyType('g'))),
     ]
 
 
@@ -1678,14 +1756,15 @@ class TestTypeClassicClass(ParserTestCase):
         def __eq__(self, other):
             return (type(self), self.value) == (type(other), other.value)
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-x', type=C),
         Sig('spam', type=C),
     ]
     failures = []
     successes = [
-        ('a -x b', NS(x=C('b'), spam=C('a'), debug=0)),
-        ('-xf g', NS(x=C('f'), spam=C('g'), debug=0)),
+        ('a -x b', NS(x=C('b'), spam=C('a'))),
+        ('-xf g', NS(x=C('f'), spam=C('g'))),
     ]
 
 
@@ -1697,15 +1776,15 @@ class TestTypeRegistration(TestCase):
         def get_my_type(string):
             return 'my_type{%s}' % string
 
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.register('type', 'my_type', get_my_type)
         parser.add_argument('-x', type='my_type')
         parser.add_argument('y', type='my_type')
 
         self.assertEqual(parser.parse_args('1'.split()),
-                         NS(x=None, y='my_type{1}', debug=0))
+                         NS(x=None, y='my_type{1}'))
         self.assertEqual(parser.parse_args('-x 1 42'.split()),
-                         NS(x='my_type{1}', y='my_type{42}', debug=0))
+                         NS(x='my_type{1}', y='my_type{42}'))
 
 
 # ============
@@ -1724,7 +1803,7 @@ class TestActionUserDefined(ParserTestCase):
                 assert option_string == '-s', 'flag: %s' % option_string
                 # when option is before argument, badger=2, and when
                 # option is after argument, badger=<whatever was set>
-                expected_ns = NS(spam=0.25, debug=0)
+                expected_ns = NS(spam=0.25)
                 if value in [0.125, 0.625]:
                     expected_ns.badger = 2
                 elif value in [2.0]:
@@ -1748,7 +1827,7 @@ class TestActionUserDefined(ParserTestCase):
                 assert self.dest == 'badger', 'dest: %s' % self.dest
                 # when argument is before option, spam=0.25, and when
                 # option is after argument, spam=<whatever was set>
-                expected_ns = NS(badger=2, debug=0)
+                expected_ns = NS(badger=2)
                 if value in [42, 84]:
                     expected_ns.spam = 0.25
                 elif value in [1]:
@@ -1764,6 +1843,7 @@ class TestActionUserDefined(ParserTestCase):
                 raise ArgumentParserError('arg_action failed: %s' % e)
             setattr(namespace, 'badger', value)
 
+    parser_signature = Sig(add_config=False, add_debug=False)
     argument_signatures = [
         Sig('-s', dest='spam', action=OptionalAction,
             type=float, default=0.25),
@@ -1772,10 +1852,10 @@ class TestActionUserDefined(ParserTestCase):
     ]
     failures = []
     successes = [
-        ('-s0.125', NS(spam=0.125, badger=2, debug=0)),
-        ('42', NS(spam=0.25, badger=42, debug=0)),
-        ('-s 0.625 1', NS(spam=0.625, badger=1, debug=0)),
-        ('84 -s2', NS(spam=2.0, badger=84, debug=0)),
+        ('-s0.125', NS(spam=0.125, badger=2)),
+        ('42', NS(spam=0.25, badger=42)),
+        ('-s 0.625 1', NS(spam=0.625, badger=1)),
+        ('84 -s2', NS(spam=2.0, badger=84)),
     ]
 
 
@@ -1789,12 +1869,12 @@ class TestActionRegistration(TestCase):
 
     def test(self):
 
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.register('action', 'my_action', self.MyAction)
         parser.add_argument('badger', action='my_action')
 
-        self.assertEqual(parser.parse_args(['1']), NS(badger='foo[1]', debug=0))
-        self.assertEqual(parser.parse_args(['42']), NS(badger='foo[42]', debug=0))
+        self.assertEqual(parser.parse_args(['1']), NS(badger='foo[1]'))
+        self.assertEqual(parser.parse_args(['42']), NS(badger='foo[42]'))
 
 
 # ================
@@ -1812,12 +1892,12 @@ class TestAddSubparsers(TestCase):
         # create a parser with a subparsers argument
         if prefix_chars:
             parser = ErrorRaisingArgumentParser(
-                prog='PROG', description='main description', prefix_chars=prefix_chars)
+                prog='PROG', description='main description', add_debug=False, add_config=False, prefix_chars=prefix_chars)
             parser.add_argument(
                 prefix_chars[0] * 2 + 'foo', action='store_true', help='foo help')
         else:
             parser = ErrorRaisingArgumentParser(
-                prog='PROG', description='main description')
+                prog='PROG', description='main description', add_debug=False, add_config=False)
             parser.add_argument(
                 '--foo', action='store_true', help='foo help')
         parser.add_argument(
@@ -1834,7 +1914,7 @@ class TestAddSubparsers(TestCase):
         self.assertArgumentParserError(parser.add_subparsers)
 
         # add first sub-parser
-        parser1_kwargs = dict(description='1 description')
+        parser1_kwargs = dict(description='1 description', add_debug=False, add_config=False)
         if subparser_help:
             parser1_kwargs['help'] = '1 help'
         if aliases:
@@ -1844,7 +1924,7 @@ class TestAddSubparsers(TestCase):
         parser1.add_argument('x', choices='abc', help='x help')
 
         # add second sub-parser
-        parser2_kwargs = dict(description='2 description')
+        parser2_kwargs = dict(description='2 description', add_debug=False, add_config=False)
         if subparser_help:
             parser2_kwargs['help'] = '2 help'
         parser2 = subparsers.add_parser('2', **parser2_kwargs)
@@ -1852,7 +1932,7 @@ class TestAddSubparsers(TestCase):
         parser2.add_argument('z', type=complex, nargs='*', help='z help')
 
         # add third sub-parser
-        parser3_kwargs = dict(description='3 description')
+        parser3_kwargs = dict(description='3 description', add_debug=False, add_config=False)
         if subparser_help:
             parser3_kwargs['help'] = '3 help'
         parser3 = subparsers.add_parser('3', **parser3_kwargs)
@@ -1878,50 +1958,50 @@ class TestAddSubparsers(TestCase):
         # check some non-failure cases:
         self.assertEqual(
             self.parser.parse_args('0.5 1 b -w 7'.split()),
-            NS(foo=False, bar=0.5, w=7, x='b', debug=0),
+            NS(foo=False, bar=0.5, w=7, x='b'),
         )
         self.assertEqual(
             self.parser.parse_args('0.25 --foo 2 -y 2 3j -- -1j'.split()),
-            NS(foo=True, bar=0.25, y='2', z=[3j, -1j], debug=0),
+            NS(foo=True, bar=0.25, y='2', z=[3j, -1j]),
         )
         self.assertEqual(
             self.parser.parse_args('--foo 0.125 1 c'.split()),
-            NS(foo=True, bar=0.125, w=None, x='c', debug=0),
+            NS(foo=True, bar=0.125, w=None, x='c'),
         )
         self.assertEqual(
             self.parser.parse_args('-1.5 3 11 -- a --foo 7 -- b'.split()),
-            NS(foo=False, bar=-1.5, t=11, u=['a', '--foo', '7', '--', 'b'], debug=0),
+            NS(foo=False, bar=-1.5, t=11, u=['a', '--foo', '7', '--', 'b']),
         )
 
     def test_parse_known_args(self):
         self.assertEqual(
             self.parser.parse_known_args('0.5 1 b -w 7'.split()),
-            (NS(foo=False, bar=0.5, w=7, x='b', debug=0), []),
+            (NS(foo=False, bar=0.5, w=7, x='b'), []),
         )
         self.assertEqual(
             self.parser.parse_known_args('0.5 -p 1 b -w 7'.split()),
-            (NS(foo=False, bar=0.5, w=7, x='b', debug=0), ['-p']),
+            (NS(foo=False, bar=0.5, w=7, x='b'), ['-p']),
         )
         self.assertEqual(
             self.parser.parse_known_args('0.5 1 b -w 7 -p'.split()),
-            (NS(foo=False, bar=0.5, w=7, x='b', debug=0), ['-p']),
+            (NS(foo=False, bar=0.5, w=7, x='b'), ['-p']),
         )
         self.assertEqual(
             self.parser.parse_known_args('0.5 1 b -q -rs -w 7'.split()),
-            (NS(foo=False, bar=0.5, w=7, x='b', debug=0), ['-q', '-rs']),
+            (NS(foo=False, bar=0.5, w=7, x='b'), ['-q', '-rs']),
         )
         self.assertEqual(
             self.parser.parse_known_args('0.5 -W 1 b -X Y -w 7 Z'.split()),
-            (NS(foo=False, bar=0.5, w=7, x='b', debug=0), ['-W', '-X', 'Y', 'Z']),
+            (NS(foo=False, bar=0.5, w=7, x='b'), ['-W', '-X', 'Y', 'Z']),
         )
 
     def test_dest(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('--foo', action='store_true')
         subparsers = parser.add_subparsers(dest='bar')
         parser1 = subparsers.add_parser('1')
         parser1.add_argument('baz')
-        self.assertEqual(NS(foo=False, bar='1', baz='2', debug=0),
+        self.assertEqual(NS(foo=False, bar='1', baz='2'),
                          parser.parse_args('1 2'.split()))
 
     def _test_required_subparsers(self, parser):
@@ -1933,26 +2013,26 @@ class TestAddSubparsers(TestCase):
         self.assertArgumentParserError(parser.parse_args, ())
 
     def test_required_subparsers_via_attribute(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         subparsers = parser.add_subparsers(dest='command')
         subparsers.required = True
         subparsers.add_parser('run')
         self._test_required_subparsers(parser)
 
     def test_required_subparsers_via_kwarg(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         subparsers = parser.add_subparsers(dest='command', required=True)
         subparsers.add_parser('run')
         self._test_required_subparsers(parser)
 
     def test_required_subparsers_default(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         subparsers = parser.add_subparsers(dest='command')
         subparsers.add_parser('run')
         self._test_required_subparsers(parser)
 
     def test_optional_subparsers(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         subparsers = parser.add_subparsers(dest='command', required=False)
         subparsers.add_parser('run')
         # No error here
@@ -1961,98 +2041,84 @@ class TestAddSubparsers(TestCase):
 
     def test_help(self):
         self.assertEqual(self.parser.format_usage(),
-                         'usage: PROG [-h] [-d] [--foo] bar {1,2,3} ...\n')
+                         'usage: PROG [-h] [--foo] bar {1,2,3} ...\n')
         self.assertEqual(self.parser.format_help(), textwrap.dedent('''\
-            usage: PROG [-h] [-d] [--foo] bar {1,2,3} ...
+            usage: PROG [-h] [--foo] bar {1,2,3} ...
 
             main description
 
             Positional arguments:
-              bar          bar help
-              {1,2,3}      command help
+              bar         bar help
+              {1,2,3}     command help
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              --foo        foo help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              -h, --help  show this help message and exit
+              --foo       foo help
             '''))
 
     def test_help_extra_prefix_chars(self):
         # Make sure - is still used for help if it is a non-first prefix char
         parser = self._get_parser(prefix_chars='+:-')
         self.assertEqual(parser.format_usage(),
-                         'usage: PROG [-h] [-d] [++foo] bar {1,2,3} ...\n')
+                         'usage: PROG [-h] [++foo] bar {1,2,3} ...\n')
         self.assertEqual(parser.format_help(), textwrap.dedent('''\
-            usage: PROG [-h] [-d] [++foo] bar {1,2,3} ...
+            usage: PROG [-h] [++foo] bar {1,2,3} ...
 
             main description
 
             Positional arguments:
-              bar          bar help
-              {1,2,3}      command help
+              bar         bar help
+              {1,2,3}     command help
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              ++foo        foo help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              -h, --help  show this help message and exit
+              ++foo       foo help
             '''))
 
     def test_help_alternate_prefix_chars(self):
         parser = self._get_parser(prefix_chars='+:/')
         self.assertEqual(parser.format_usage(),
-                         'usage: PROG [+h] [+d] [++foo] bar {1,2,3} ...\n')
+                         'usage: PROG [+h] [++foo] bar {1,2,3} ...\n')
         self.assertEqual(parser.format_help(), textwrap.dedent('''\
-            usage: PROG [+h] [+d] [++foo] bar {1,2,3} ...
+            usage: PROG [+h] [++foo] bar {1,2,3} ...
 
             main description
 
             Positional arguments:
-              bar          bar help
-              {1,2,3}      command help
+              bar         bar help
+              {1,2,3}     command help
 
             Options:
-              +h, ++help   show this help message and exit
-              +d, ++debug  display more verbose messages
-              ++foo        foo help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              +h, ++help  show this help message and exit
+              ++foo       foo help
             '''))
 
     def test_parser_command_help(self):
         self.assertEqual(self.command_help_parser.format_usage(),
-                         'usage: PROG [-h] [-d] [--foo] bar {1,2,3} ...\n')
+                         'usage: PROG [-h] [--foo] bar {1,2,3} ...\n')
         self.assertEqual(self.command_help_parser.format_help(),
                          textwrap.dedent('''\
-            usage: PROG [-h] [-d] [--foo] bar {1,2,3} ...
+            usage: PROG [-h] [--foo] bar {1,2,3} ...
 
             main description
 
             Positional arguments:
-              bar          bar help
-              {1,2,3}      command help
-                1          1 help
-                2          2 help
-                3          3 help
+              bar         bar help
+              {1,2,3}     command help
+                1         1 help
+                2         2 help
+                3         3 help
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              --foo        foo help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              -h, --help  show this help message and exit
+              --foo       foo help
             '''))
 
     def test_subparser_title_help(self):
         parser = ErrorRaisingArgumentParser(prog='PROG',
-                                            description='main description')
+                                            description='main description',
+                                            add_debug=False,
+                                            add_config=False)
         parser.add_argument('--foo', action='store_true', help='foo help')
         parser.add_argument('bar', help='bar help')
         subparsers = parser.add_subparsers(title='subcommands',
@@ -2061,27 +2127,23 @@ class TestAddSubparsers(TestCase):
         parser1 = subparsers.add_parser('1')
         parser2 = subparsers.add_parser('2')
         self.assertEqual(parser.format_usage(),
-                         'usage: PROG [-h] [-d] [--foo] bar {1,2} ...\n')
+                         'usage: PROG [-h] [--foo] bar {1,2} ...\n')
         self.assertEqual(parser.format_help(), textwrap.dedent('''\
-            usage: PROG [-h] [-d] [--foo] bar {1,2} ...
+            usage: PROG [-h] [--foo] bar {1,2} ...
 
             main description
 
             Positional arguments:
-              bar          bar help
+              bar         bar help
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              --foo        foo help
+              -h, --help  show this help message and exit
+              --foo       foo help
 
             subcommands:
               command help
 
-              {1,2}        additional text
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              {1,2}       additional text
             '''))
 
     def _test_subparser_help(self, args_str, expected_help):
@@ -2091,49 +2153,41 @@ class TestAddSubparsers(TestCase):
 
     def test_subparser1_help(self):
         self._test_subparser_help('5.0 1 -h', textwrap.dedent('''\
-            usage: PROG bar 1 [-h] [-d] [-w W] {a,b,c}
+            usage: PROG bar 1 [-h] [-w W] {a,b,c}
 
             1 description
 
             Positional arguments:
-              {a,b,c}      x help
+              {a,b,c}     x help
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              -w W         w help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              -h, --help  show this help message and exit
+              -w W        w help
             '''))
 
     def test_subparser2_help(self):
         self._test_subparser_help('5.0 2 -h', textwrap.dedent('''\
-            usage: PROG bar 2 [-h] [-d] [-y {1,2,3}] [z [z ...]]
+            usage: PROG bar 2 [-h] [-y {1,2,3}] [z [z ...]]
 
             2 description
 
             Positional arguments:
-              z            z help (REQUIRED)
+              z           z help (REQUIRED)
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              -y {1,2,3}   y help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              -h, --help  show this help message and exit
+              -y {1,2,3}  y help
             '''))
 
     def test_alias_invocation(self):
         parser = self._get_parser(aliases=True)
         self.assertEqual(
             parser.parse_known_args('0.5 1alias1 b'.split()),
-            (NS(foo=False, bar=0.5, w=None, x='b', debug=0), []),
+            (NS(foo=False, bar=0.5, w=None, x='b'), []),
         )
         self.assertEqual(
             parser.parse_known_args('0.5 1alias2 b'.split()),
-            (NS(foo=False, bar=0.5, w=None, x='b', debug=0), []),
+            (NS(foo=False, bar=0.5, w=None, x='b'), []),
         )
 
     def test_error_alias_invocation(self):
@@ -2145,7 +2199,7 @@ class TestAddSubparsers(TestCase):
         parser = self._get_parser(aliases=True, subparser_help=True)
         self.maxDiff = None
         self.assertEqual(parser.format_help(), textwrap.dedent("""\
-            usage: PROG [-h] [-d] [--foo] bar COMMAND ...
+            usage: PROG [-h] [--foo] bar COMMAND ...
 
             main description
 
@@ -2154,7 +2208,6 @@ class TestAddSubparsers(TestCase):
 
             Options:
               -h, --help            show this help message and exit
-              -d, --debug           display more verbose messages
               --foo                 foo help
 
             commands:
@@ -2163,9 +2216,6 @@ class TestAddSubparsers(TestCase):
                                     1 help
                 2                   2 help
                 3                   3 help
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
             """))
 
 # ============
@@ -2176,34 +2226,34 @@ class TestPositionalsGroups(TestCase):
     """Tests that order of group positionals matches construction order"""
 
     def test_nongroup_first(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('foo')
         group = parser.add_argument_group('g')
         group.add_argument('bar')
         parser.add_argument('baz')
-        expected = NS(foo='1', bar='2', baz='3', debug=0)
+        expected = NS(foo='1', bar='2', baz='3')
         result = parser.parse_args('1 2 3'.split())
         self.assertEqual(expected, result)
 
     def test_group_first(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         group = parser.add_argument_group('xxx')
         group.add_argument('foo')
         parser.add_argument('bar')
         parser.add_argument('baz')
-        expected = NS(foo='1', bar='2', baz='3', debug=0)
+        expected = NS(foo='1', bar='2', baz='3')
         result = parser.parse_args('1 2 3'.split())
         self.assertEqual(expected, result)
 
     def test_interleaved_groups(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         group = parser.add_argument_group('xxx')
         parser.add_argument('foo')
         group.add_argument('bar')
         parser.add_argument('baz')
         group = parser.add_argument_group('yyy')
         group.add_argument('frell')
-        expected = NS(foo='1', bar='2', baz='3', frell='4', debug=0)
+        expected = NS(foo='1', bar='2', baz='3', frell='4')
         result = parser.parse_args('1 2 3 4'.split())
         self.assertEqual(expected, result)
 
@@ -2219,26 +2269,26 @@ class TestParentParsers(TestCase):
 
     def setUp(self):
         super(TestParentParsers, self).setUp()
-        self.wxyz_parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False)
+        self.wxyz_parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         self.wxyz_parent.add_argument('--w')
         x_group = self.wxyz_parent.add_argument_group('x')
         x_group.add_argument('-y')
         self.wxyz_parent.add_argument('z')
 
-        self.abcd_parent = ErrorRaisingArgumentParser(add_help=False)
+        self.abcd_parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         self.abcd_parent.add_argument('a')
         self.abcd_parent.add_argument('-b')
         c_group = self.abcd_parent.add_argument_group('c')
         c_group.add_argument('--d')
 
-        self.w_parent = ErrorRaisingArgumentParser(add_help=False)
+        self.w_parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         self.w_parent.add_argument('--w')
 
-        self.z_parent = ErrorRaisingArgumentParser(add_help=False)
+        self.z_parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         self.z_parent.add_argument('z')
 
         # parents with mutually exclusive groups
-        self.ab_mutex_parent = ErrorRaisingArgumentParser(add_help=False)
+        self.ab_mutex_parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         group = self.ab_mutex_parent.add_mutually_exclusive_group()
         group.add_argument('-a', action='store_true')
         group.add_argument('-b', action='store_true')
@@ -2248,7 +2298,7 @@ class TestParentParsers(TestCase):
     def test_single_parent(self):
         parser = ErrorRaisingArgumentParser(parents=[self.wxyz_parent])
         self.assertEqual(parser.parse_args('-y 1 2 --w 3'.split()),
-                         NS(w='3', y='1', z='2', debug=0))
+                         NS(w='3', y='1', z='2'))
 
     def test_single_parent_mutex(self):
         self._test_mutex_ab(self.ab_mutex_parent.parse_args)
@@ -2262,9 +2312,9 @@ class TestParentParsers(TestCase):
         self._test_mutex_ab(parser.parse_args)
 
     def _test_mutex_ab(self, parse_args):
-        self.assertEqual(parse_args([]), NS(a=False, b=False, debug=0))
-        self.assertEqual(parse_args(['-a']), NS(a=True, b=False, debug=0))
-        self.assertEqual(parse_args(['-b']), NS(a=False, b=True, debug=0))
+        self.assertEqual(parse_args([]), NS(a=False, b=False))
+        self.assertEqual(parse_args(['-a']), NS(a=True, b=False))
+        self.assertEqual(parse_args(['-b']), NS(a=False, b=True))
         self.assertArgumentParserError(parse_args, ['-a', '-b'])
         self.assertArgumentParserError(parse_args, ['-b', '-a'])
         self.assertArgumentParserError(parse_args, ['-c'])
@@ -2275,13 +2325,13 @@ class TestParentParsers(TestCase):
         parents = [self.abcd_parent, self.wxyz_parent]
         parser = ErrorRaisingArgumentParser(parents=parents)
         self.assertEqual(parser.parse_args('--d 1 --w 2 3 4'.split()),
-                         NS(a='3', b=None, d='1', w='2', y=None, z='4', debug=0))
+                         NS(a='3', b=None, d='1', w='2', y=None, z='4'))
 
     def test_multiple_parents_mutex(self):
         parents = [self.ab_mutex_parent, self.wxyz_parent]
         parser = ErrorRaisingArgumentParser(parents=parents)
         self.assertEqual(parser.parse_args('-a --w 2 3'.split()),
-                         NS(a=True, b=False, w='2', y=None, z='3', debug=0))
+                         NS(a=True, b=False, w='2', y=None, z='3'))
         self.assertArgumentParserError(
             parser.parse_args, '-a --w 2 3 -b'.split())
         self.assertArgumentParserError(
@@ -2303,18 +2353,18 @@ class TestParentParsers(TestCase):
         parents = [self.wxyz_parent, self.z_parent]
         parser = ErrorRaisingArgumentParser(parents=parents)
         self.assertEqual(parser.parse_args('1 2'.split()),
-                         NS(w=None, y=None, z='2', debug=0))
+                         NS(w=None, y=None, z='2'))
 
     def test_subparser_parents(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         subparsers = parser.add_subparsers()
         abcde_parser = subparsers.add_parser('bar', parents=[self.abcd_parent])
         abcde_parser.add_argument('e')
         self.assertEqual(parser.parse_args('bar -b 1 --d 2 3 4'.split()),
-                         NS(a='3', b='1', d='2', e='4', debug=0))
+                         NS(a='3', b='1', d='2', e='4'))
 
     def test_subparser_parents_mutex(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         subparsers = parser.add_subparsers()
         parents = [self.ab_mutex_parent]
         abc_parser = subparsers.add_parser('foo', parents=parents, add_debug=False)
@@ -2324,9 +2374,9 @@ class TestParentParsers(TestCase):
         wxyzabe_parser = subparsers.add_parser('bar', parents=parents, add_debug=False)
         wxyzabe_parser.add_argument('e')
         self.assertEqual(parser.parse_args('foo -a 4'.split()),
-                         NS(a=True, b=False, c='4', debug=0))
+                         NS(a=True, b=False, c='4'))
         self.assertEqual(parser.parse_args('bar -b  --w 2 3 4'.split()),
-                         NS(a=False, b=True, w='2', y=None, z='3', e='4', debug=0))
+                         NS(a=False, b=True, w='2', y=None, z='3', e='4'))
         self.assertArgumentParserError(
             parser.parse_args, 'foo -a -b 4'.split())
         self.assertArgumentParserError(
@@ -2338,15 +2388,14 @@ class TestParentParsers(TestCase):
         parser_help = parser.format_help()
         progname = self.main_program
         self.assertEqual(parser_help, textwrap.dedent('''\
-            usage: {}{}[-h] [-d] [-b B] [--d D] [--w W] [-y Y] a z
+            usage: {}{}[-h] [-b B] [--d D] [--w W] [-y Y] a z
 
             Positional arguments:
               a
               z
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
+              -h, --help  show this help message and exit
               -b B
               --w W
 
@@ -2355,13 +2404,10 @@ class TestParentParsers(TestCase):
 
             x:
               -y Y
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
         '''.format(progname, ' ' if progname else '' )))
 
     def test_groups_parents(self):
-        parent = ErrorRaisingArgumentParser(add_help=False)
+        parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         g = parent.add_argument_group(title='g', description='gd')
         g.add_argument('-w')
         g.add_argument('-x')
@@ -2376,11 +2422,10 @@ class TestParentParsers(TestCase):
         parser_help = parser.format_help()
         progname = self.main_program
         self.assertEqual(parser_help, textwrap.dedent('''\
-            usage: {}{}[-h] [-d] [-w W] [-x X] [-y Y | -z Z]
+            usage: {}{}[-h] [-w W] [-x X] [-y Y | -z Z]
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
+              -h, --help  show this help message and exit
               -y Y
               -z Z
 
@@ -2389,9 +2434,6 @@ class TestParentParsers(TestCase):
 
               -w W
               -x X
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
         '''.format(progname, ' ' if progname else '' )))
 
 # ==============================
@@ -2401,12 +2443,12 @@ class TestParentParsers(TestCase):
 class TestMutuallyExclusiveGroupErrors(TestCase):
 
     def test_invalid_add_argument_group(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         raises = self.assertRaises
         raises(TypeError, parser.add_mutually_exclusive_group, title='foo')
 
     def test_invalid_add_argument(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         group = parser.add_mutually_exclusive_group()
         add_argument = group.add_argument
         raises = self.assertRaises
@@ -2417,7 +2459,7 @@ class TestMutuallyExclusiveGroupErrors(TestCase):
         raises(ValueError, add_argument, 'bar', nargs=pyapputil.argutil.PARSER)
 
     def test_help(self):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         group1 = parser.add_mutually_exclusive_group()
         group1.add_argument('--foo', action='store_true')
         group1.add_argument('--bar', action='store_false')
@@ -2425,18 +2467,14 @@ class TestMutuallyExclusiveGroupErrors(TestCase):
         group2.add_argument('--soup', action='store_true')
         group2.add_argument('--nuts', action='store_false')
         expected = '''\
-            usage: PROG [-h] [-d] [--foo | --bar] [--soup | --nuts]
+            usage: PROG [-h] [--foo | --bar] [--soup | --nuts]
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
+              -h, --help  show this help message and exit
               --foo
               --bar
               --soup
               --nuts
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
               '''
         self.assertEqual(parser.format_help(), textwrap.dedent(expected))
 
@@ -2491,7 +2529,7 @@ class MEMixin(object):
 class TestMutuallyExclusiveSimple(MEMixin, TestCase):
 
     def get_parser(self, required=None):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         group = parser.add_mutually_exclusive_group(required=required)
         group.add_argument('--bar', help='bar help')
         group.add_argument('--baz', nargs='?', const='Z', help='baz help')
@@ -2499,38 +2537,34 @@ class TestMutuallyExclusiveSimple(MEMixin, TestCase):
 
     failures = ['--bar X --baz Y', '--bar X --baz']
     successes = [
-        ('--bar X', NS(bar='X', baz=None, debug=0)),
-        ('--bar X --bar Z', NS(bar='Z', baz=None, debug=0)),
-        ('--baz Y', NS(bar=None, baz='Y', debug=0)),
-        ('--baz', NS(bar=None, baz='Z', debug=0)),
+        ('--bar X', NS(bar='X', baz=None)),
+        ('--bar X --bar Z', NS(bar='Z', baz=None)),
+        ('--baz Y', NS(bar=None, baz='Y')),
+        ('--baz', NS(bar=None, baz='Z')),
     ]
     successes_when_not_required = [
-        ('', NS(bar=None, baz=None, debug=0)),
+        ('', NS(bar=None, baz=None)),
     ]
 
     usage_when_not_required = '''\
-        usage: PROG [-h] [-d] [--bar BAR | --baz [BAZ]]
+        usage: PROG [-h] [--bar BAR | --baz [BAZ]]
         '''
     usage_when_required = '''\
-        usage: PROG [-h] [-d] (--bar BAR | --baz [BAZ])
+        usage: PROG [-h] (--bar BAR | --baz [BAZ])
         '''
     help = '''\
 
         Options:
           -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
           --bar BAR    bar help
           --baz [BAZ]  baz help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
 
 
 class TestMutuallyExclusiveLong(MEMixin, TestCase):
 
     def get_parser(self, required=None):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         parser.add_argument('--abce', help='abce help')
         parser.add_argument('--fghij', help='fghij help')
         group = parser.add_mutually_exclusive_group(required=required)
@@ -2540,42 +2574,38 @@ class TestMutuallyExclusiveLong(MEMixin, TestCase):
 
     failures = ['--klmno X --pqrst Y']
     successes = [
-        ('--klmno X', NS(abce=None, fghij=None, klmno='X', pqrst=None, debug=0)),
+        ('--klmno X', NS(abce=None, fghij=None, klmno='X', pqrst=None)),
         ('--abce Y --klmno X',
-            NS(abce='Y', fghij=None, klmno='X', pqrst=None, debug=0)),
-        ('--pqrst X', NS(abce=None, fghij=None, klmno=None, pqrst='X', debug=0)),
+            NS(abce='Y', fghij=None, klmno='X', pqrst=None)),
+        ('--pqrst X', NS(abce=None, fghij=None, klmno=None, pqrst='X')),
         ('--pqrst X --fghij Y',
-            NS(abce=None, fghij='Y', klmno=None, pqrst='X', debug=0)),
+            NS(abce=None, fghij='Y', klmno=None, pqrst='X')),
     ]
     successes_when_not_required = [
-        ('', NS(abce=None, fghij=None, klmno=None, pqrst=None, debug=0)),
+        ('', NS(abce=None, fghij=None, klmno=None, pqrst=None)),
     ]
 
     usage_when_not_required = '''\
-    usage: PROG [-h] [-d] [--abce ABCE] [--fghij FGHIJ] [--klmno KLMNO | --pqrst PQRST]
+    usage: PROG [-h] [--abce ABCE] [--fghij FGHIJ] [--klmno KLMNO | --pqrst PQRST]
     '''
     usage_when_required = '''\
-    usage: PROG [-h] [-d] [--abce ABCE] [--fghij FGHIJ] (--klmno KLMNO | --pqrst PQRST)
+    usage: PROG [-h] [--abce ABCE] [--fghij FGHIJ] (--klmno KLMNO | --pqrst PQRST)
     '''
     help = '''\
 
     Options:
       -h, --help     show this help message and exit
-      -d, --debug    display more verbose messages
       --abce ABCE    abce help
       --fghij FGHIJ  fghij help
       --klmno KLMNO  klmno help
       --pqrst PQRST  pqrst help
-
-    Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-    env variable are set and the command line argument specified, the command line will take precedence.
     '''
 
 
 class TestMutuallyExclusiveFirstSuppressed(MEMixin, TestCase):
 
     def get_parser(self, required, add_debug=False):
-        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=add_debug)
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=add_debug, add_config=False)
         group = parser.add_mutually_exclusive_group(required=required)
         group.add_argument('-x', help=pyapputil.argutil.SUPPRESS)
         group.add_argument('-y', action='store_false', help='y help')
@@ -2602,16 +2632,13 @@ class TestMutuallyExclusiveFirstSuppressed(MEMixin, TestCase):
         Options:
           -h, --help  show this help message and exit
           -y          y help (default: True)
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
 
 
 class TestMutuallyExclusiveManySuppressed(MEMixin, TestCase):
 
     def get_parser(self, required):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         group = parser.add_mutually_exclusive_group(required=required)
         add = group.add_argument
         add('--spam', action='store_true', help=pyapputil.argutil.SUPPRESS)
@@ -2625,33 +2652,29 @@ class TestMutuallyExclusiveManySuppressed(MEMixin, TestCase):
         '--bladder B --spam',
     ]
     successes = [
-        ('--spam', NS(spam=True, badger=True, bladder=None, debug=0)),
-        ('--badger', NS(spam=False, badger=False, bladder=None, debug=0)),
-        ('--bladder B', NS(spam=False, badger=True, bladder='B', debug=0)),
-        ('--spam --spam', NS(spam=True, badger=True, bladder=None, debug=0)),
+        ('--spam', NS(spam=True, badger=True, bladder=None)),
+        ('--badger', NS(spam=False, badger=False, bladder=None)),
+        ('--bladder B', NS(spam=False, badger=True, bladder='B')),
+        ('--spam --spam', NS(spam=True, badger=True, bladder=None)),
     ]
     successes_when_not_required = [
-        ('', NS(spam=False, badger=True, bladder=None, debug=0)),
+        ('', NS(spam=False, badger=True, bladder=None)),
     ]
 
     usage_when_required = usage_when_not_required = '''\
-        usage: PROG [-h] [-d]
+        usage: PROG [-h]
         '''
     help = '''\
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
         '''
 
 
 class TestMutuallyExclusiveOptionalAndPositional(MEMixin, TestCase):
 
     def get_parser(self, required):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         group = parser.add_mutually_exclusive_group(required=required)
         group.add_argument('--foo', action='store_true', help='FOO')
         group.add_argument('--spam', help='SPAM')
@@ -2666,20 +2689,20 @@ class TestMutuallyExclusiveOptionalAndPositional(MEMixin, TestCase):
         '--foo X Y',
     ]
     successes = [
-        ('--foo', NS(foo=True, spam=None, badger='X', debug=0)),
-        ('--spam S', NS(foo=False, spam='S', badger='X', debug=0)),
-        ('X', NS(foo=False, spam=None, badger=['X'], debug=0)),
-        ('X Y Z', NS(foo=False, spam=None, badger=['X', 'Y', 'Z'], debug=0)),
+        ('--foo', NS(foo=True, spam=None, badger='X')),
+        ('--spam S', NS(foo=False, spam='S', badger='X')),
+        ('X', NS(foo=False, spam=None, badger=['X'])),
+        ('X Y Z', NS(foo=False, spam=None, badger=['X', 'Y', 'Z'])),
     ]
     successes_when_not_required = [
-        ('', NS(foo=False, spam=None, badger='X', debug=0)),
+        ('', NS(foo=False, spam=None, badger='X')),
     ]
 
     usage_when_not_required = '''\
-        usage: PROG [-h] [-d] [--foo | --spam SPAM | badger [badger ...]]
+        usage: PROG [-h] [--foo | --spam SPAM | badger [badger ...]]
         '''
     usage_when_required = '''\
-        usage: PROG [-h] [-d] (--foo | --spam SPAM | badger [badger ...])
+        usage: PROG [-h] (--foo | --spam SPAM | badger [badger ...])
         '''
     help = '''\
 
@@ -2688,19 +2711,15 @@ class TestMutuallyExclusiveOptionalAndPositional(MEMixin, TestCase):
 
         Options:
           -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
           --foo        FOO
           --spam SPAM  SPAM
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
 
 
 class TestMutuallyExclusiveOptionalsMixed(MEMixin, TestCase):
 
     def get_parser(self, required):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         parser.add_argument('-x', action='store_true', help='x help')
         group = parser.add_mutually_exclusive_group(required=required)
         group.add_argument('-a', action='store_true', help='a help')
@@ -2711,42 +2730,38 @@ class TestMutuallyExclusiveOptionalsMixed(MEMixin, TestCase):
 
     failures = ['-a -b', '-b -c', '-a -c', '-a -b -c']
     successes = [
-        ('-a', NS(a=True, b=False, c=False, x=False, y=False, debug=0)),
-        ('-b', NS(a=False, b=True, c=False, x=False, y=False, debug=0)),
-        ('-c', NS(a=False, b=False, c=True, x=False, y=False, debug=0)),
-        ('-a -x', NS(a=True, b=False, c=False, x=True, y=False, debug=0)),
-        ('-y -b', NS(a=False, b=True, c=False, x=False, y=True, debug=0)),
-        ('-x -y -c', NS(a=False, b=False, c=True, x=True, y=True, debug=0)),
+        ('-a', NS(a=True, b=False, c=False, x=False, y=False)),
+        ('-b', NS(a=False, b=True, c=False, x=False, y=False)),
+        ('-c', NS(a=False, b=False, c=True, x=False, y=False)),
+        ('-a -x', NS(a=True, b=False, c=False, x=True, y=False)),
+        ('-y -b', NS(a=False, b=True, c=False, x=False, y=True)),
+        ('-x -y -c', NS(a=False, b=False, c=True, x=True, y=True)),
     ]
     successes_when_not_required = [
-        ('', NS(a=False, b=False, c=False, x=False, y=False, debug=0)),
-        ('-x', NS(a=False, b=False, c=False, x=True, y=False, debug=0)),
-        ('-y', NS(a=False, b=False, c=False, x=False, y=True, debug=0)),
+        ('', NS(a=False, b=False, c=False, x=False, y=False)),
+        ('-x', NS(a=False, b=False, c=False, x=True, y=False)),
+        ('-y', NS(a=False, b=False, c=False, x=False, y=True)),
     ]
 
     usage_when_required = usage_when_not_required = '''\
-        usage: PROG [-h] [-d] [-x] [-a] [-b] [-y] [-c]
+        usage: PROG [-h] [-x] [-a] [-b] [-y] [-c]
         '''
     help = '''\
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          -x           x help
-          -a           a help
-          -b           b help
-          -y           y help
-          -c           c help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          -x          x help
+          -a          a help
+          -b          b help
+          -y          y help
+          -c          c help
         '''
 
 
 class TestMutuallyExclusiveInGroup(MEMixin, TestCase):
 
     def get_parser(self, required=None):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         titled_group = parser.add_argument_group(
             title='Titled group', description='Group description')
         mutex_group = \
@@ -2757,40 +2772,36 @@ class TestMutuallyExclusiveInGroup(MEMixin, TestCase):
 
     failures = ['--bar X --baz Y', '--baz X --bar Y']
     successes = [
-        ('--bar X', NS(bar='X', baz=None, debug=0)),
-        ('--baz Y', NS(bar=None, baz='Y', debug=0)),
+        ('--bar X', NS(bar='X', baz=None)),
+        ('--baz Y', NS(bar=None, baz='Y')),
     ]
     successes_when_not_required = [
-        ('', NS(bar=None, baz=None, debug=0)),
+        ('', NS(bar=None, baz=None)),
     ]
 
     usage_when_not_required = '''\
-        usage: PROG [-h] [-d] [--bar BAR | --baz BAZ]
+        usage: PROG [-h] [--bar BAR | --baz BAZ]
         '''
     usage_when_required = '''\
-        usage: PROG [-h] [-d] (--bar BAR | --baz BAZ)
+        usage: PROG [-h] (--bar BAR | --baz BAZ)
         '''
     help = '''\
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
+          -h, --help  show this help message and exit
 
         Titled group:
           Group description
 
-          --bar BAR    bar help
-          --baz BAZ    baz help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          --bar BAR   bar help
+          --baz BAZ   baz help
         '''
 
 
 class TestMutuallyExclusiveOptionalsAndPositionalsMixed(MEMixin, TestCase):
 
     def get_parser(self, required):
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         parser.add_argument('x', help='x help')
         parser.add_argument('-y', action='store_true', help='y help')
         group = parser.add_mutually_exclusive_group(required=required)
@@ -2801,35 +2812,31 @@ class TestMutuallyExclusiveOptionalsAndPositionalsMixed(MEMixin, TestCase):
 
     failures = ['X A -b', '-b -c', '-c X A']
     successes = [
-        ('X A', NS(a='A', b=False, c=False, x='X', y=False, debug=0)),
-        ('X -b', NS(a=None, b=True, c=False, x='X', y=False, debug=0)),
-        ('X -c', NS(a=None, b=False, c=True, x='X', y=False, debug=0)),
-        ('X A -y', NS(a='A', b=False, c=False, x='X', y=True, debug=0)),
-        ('X -y -b', NS(a=None, b=True, c=False, x='X', y=True, debug=0)),
+        ('X A', NS(a='A', b=False, c=False, x='X', y=False)),
+        ('X -b', NS(a=None, b=True, c=False, x='X', y=False)),
+        ('X -c', NS(a=None, b=False, c=True, x='X', y=False)),
+        ('X A -y', NS(a='A', b=False, c=False, x='X', y=True)),
+        ('X -y -b', NS(a=None, b=True, c=False, x='X', y=True)),
     ]
     successes_when_not_required = [
-        ('X', NS(a=None, b=False, c=False, x='X', y=False, debug=0)),
-        ('X -y', NS(a=None, b=False, c=False, x='X', y=True, debug=0)),
+        ('X', NS(a=None, b=False, c=False, x='X', y=False)),
+        ('X -y', NS(a=None, b=False, c=False, x='X', y=True)),
     ]
 
     usage_when_required = usage_when_not_required = '''\
-        usage: PROG [-h] [-d] [-y] [-b] [-c] x [a]
+        usage: PROG [-h] [-y] [-b] [-c] x [a]
         '''
     help = '''\
 
         Positional arguments:
-          x            x help
-          a            a help
+          x           x help
+          a           a help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          -y           y help
-          -b           b help
-          -c           c help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          -y          y help
+          -b          b help
+          -c          c help
         '''
 
 # =================================================
@@ -2899,59 +2906,59 @@ class TestMutuallyExclusiveOptionalsAndPositionalsMixedParent(
 class TestSetDefaults(TestCase):
 
     def test_set_defaults_no_args(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.set_defaults(x='foo')
         parser.set_defaults(y='bar', z=1)
-        self.assertEqual(NS(x='foo', y='bar', z=1, debug=0),
+        self.assertEqual(NS(x='foo', y='bar', z=1),
                          parser.parse_args([]))
-        self.assertEqual(NS(x='foo', y='bar', z=1, debug=0),
+        self.assertEqual(NS(x='foo', y='bar', z=1),
                          parser.parse_args([], NS()))
-        self.assertEqual(NS(x='baz', y='bar', z=1, debug=0),
+        self.assertEqual(NS(x='baz', y='bar', z=1),
                          parser.parse_args([], NS(x='baz')))
-        self.assertEqual(NS(x='baz', y='bar', z=2, debug=0),
+        self.assertEqual(NS(x='baz', y='bar', z=2),
                          parser.parse_args([], NS(x='baz', z=2)))
 
     def test_set_defaults_with_args(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.set_defaults(x='foo', y='bar')
         parser.add_argument('-x', default='xfoox')
-        self.assertEqual(NS(x='xfoox', y='bar', debug=0),
+        self.assertEqual(NS(x='xfoox', y='bar'),
                          parser.parse_args([]))
-        self.assertEqual(NS(x='xfoox', y='bar', debug=0),
+        self.assertEqual(NS(x='xfoox', y='bar'),
                          parser.parse_args([], NS()))
-        self.assertEqual(NS(x='baz', y='bar', debug=0),
+        self.assertEqual(NS(x='baz', y='bar'),
                          parser.parse_args([], NS(x='baz')))
-        self.assertEqual(NS(x='1', y='bar', debug=0),
+        self.assertEqual(NS(x='1', y='bar'),
                          parser.parse_args('-x 1'.split()))
-        self.assertEqual(NS(x='1', y='bar', debug=0),
+        self.assertEqual(NS(x='1', y='bar'),
                          parser.parse_args('-x 1'.split(), NS()))
-        self.assertEqual(NS(x='1', y='bar', debug=0),
+        self.assertEqual(NS(x='1', y='bar'),
                          parser.parse_args('-x 1'.split(), NS(x='baz')))
 
     def test_set_defaults_subparsers(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.set_defaults(x='foo')
         subparsers = parser.add_subparsers()
         parser_a = subparsers.add_parser('a')
         parser_a.set_defaults(y='bar')
-        self.assertEqual(NS(x='foo', y='bar', debug=0),
+        self.assertEqual(NS(x='foo', y='bar'),
                          parser.parse_args('a'.split()))
 
     def test_set_defaults_parents(self):
-        parent = ErrorRaisingArgumentParser(add_help=False)
+        parent = ErrorRaisingArgumentParser(add_help=False, add_debug=False, add_config=False)
         parent.set_defaults(x='foo')
         parser = ErrorRaisingArgumentParser(parents=[parent])
-        self.assertEqual(NS(x='foo', debug=0), parser.parse_args([]))
+        self.assertEqual(NS(x='foo'), parser.parse_args([]))
 
     def test_set_defaults_on_parent_and_subparser(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         xparser = parser.add_subparsers().add_parser('X')
         parser.set_defaults(foo=1)
         xparser.set_defaults(foo=2)
-        self.assertEqual(NS(foo=2, debug=0), parser.parse_args(['X']))
+        self.assertEqual(NS(foo=2), parser.parse_args(['X']))
 
     def test_set_defaults_same_as_add_argument(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.set_defaults(w='W', x='X', y='Y', z='Z')
         parser.add_argument('-w')
         parser.add_argument('-x', default='XX')
@@ -2959,16 +2966,16 @@ class TestSetDefaults(TestCase):
         parser.add_argument('z', nargs='?', default='ZZ')
 
         # defaults set previously
-        self.assertEqual(NS(w='W', x='XX', y='Y', z='ZZ', debug=0),
+        self.assertEqual(NS(w='W', x='XX', y='Y', z='ZZ'),
                          parser.parse_args([]))
 
         # reset defaults
-        parser.set_defaults(w='WW', x='X', y='YY', z='Z', debug=0)
-        self.assertEqual(NS(w='WW', x='X', y='YY', z='Z', debug=0),
+        parser.set_defaults(w='WW', x='X', y='YY', z='Z')
+        self.assertEqual(NS(w='WW', x='X', y='YY', z='Z'),
                          parser.parse_args([]))
 
     def test_set_defaults_same_as_add_argument_group(self):
-        parser = ErrorRaisingArgumentParser()
+        parser = ErrorRaisingArgumentParser(add_debug=False, add_config=False)
         parser.set_defaults(w='W', x='X', y='Y', z='Z')
         group = parser.add_argument_group('foo')
         group.add_argument('-w')
@@ -2978,12 +2985,12 @@ class TestSetDefaults(TestCase):
 
 
         # defaults set previously
-        self.assertEqual(NS(w='W', x='XX', y='Y', z='ZZ', debug=0),
+        self.assertEqual(NS(w='W', x='XX', y='Y', z='ZZ'),
                          parser.parse_args([]))
 
         # reset defaults
         parser.set_defaults(w='WW', x='X', y='YY', z='Z')
-        self.assertEqual(NS(w='WW', x='X', y='YY', z='Z', debug=0),
+        self.assertEqual(NS(w='WW', x='X', y='YY', z='Z'),
                          parser.parse_args([]))
 
 # =================
@@ -3122,7 +3129,7 @@ class TestHelpBiggerOptionals(HelpTestCase):
     """Make sure that argument help aligns when options are longer"""
 
     parser_signature = Sig(prog='PROG', description='DESCRIPTION',
-                           epilog='EPILOG')
+                           epilog='EPILOG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-v', '--version', action='version', version='0.1'),
         Sig('-x', action='store_true', help='X HELP'),
@@ -3132,7 +3139,7 @@ class TestHelpBiggerOptionals(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-v] [-x] [--y Y] foo bar
+        usage: PROG [-h] [-v] [-x] [--y Y] foo bar
         '''
     help = usage + '''\
 
@@ -3144,7 +3151,6 @@ class TestHelpBiggerOptionals(HelpTestCase):
 
         Options:
           -h, --help     show this help message and exit
-          -d, --debug    display more verbose messages
           -v, --version  show program's version number and exit
           -x             X HELP
           --y Y          Y HELP
@@ -3172,7 +3178,6 @@ class TestShortColumns(HelpTestCase):
     usage = '''\
         usage: PROG
                [-h]
-               [-d]
                [-v]
                [-x]
                [--y Y]
@@ -3195,11 +3200,6 @@ class TestShortColumns(HelpTestCase):
            help
            message and
            exit
-          -d, --debug
-           display
-           more
-           verbose
-           messages
           -v, --version
            show
            program's
@@ -3220,7 +3220,7 @@ class TestHelpBiggerOptionalGroups(HelpTestCase):
     """Make sure that argument help aligns when options are longer"""
 
     parser_signature = Sig(prog='PROG', description='DESCRIPTION',
-                           epilog='EPILOG')
+                           epilog='EPILOG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-v', '--version', action='version', version='0.1'),
         Sig('-x', action='store_true', help='X HELP'),
@@ -3234,7 +3234,7 @@ class TestHelpBiggerOptionalGroups(HelpTestCase):
             Sig('-z', nargs='+', help='Z HELP')]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [-v] [-x] [--y Y] [-z Z [Z ...]] foo bar baz
+        usage: PROG [-h] [-v] [-x] [--y Y] [-z Z [Z ...]] foo bar baz
         '''
     help = usage + '''\
 
@@ -3246,7 +3246,6 @@ class TestHelpBiggerOptionalGroups(HelpTestCase):
 
         Options:
           -h, --help     show this help message and exit
-          -d, --debug    display more verbose messages
           -v, --version  show program's version number and exit
           -x             X HELP
           --y Y          Y HELP
@@ -3267,7 +3266,7 @@ class TestHelpBiggerOptionalGroups(HelpTestCase):
 class TestHelpBiggerPositionals(HelpTestCase):
     """Make sure that help aligns when arguments are longer"""
 
-    parser_signature = Sig(usage='USAGE', description='DESCRIPTION')
+    parser_signature = Sig(usage='USAGE', description='DESCRIPTION', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-x', action='store_true', help='X HELP'),
         Sig('--y', help='Y HELP'),
@@ -3288,12 +3287,8 @@ class TestHelpBiggerPositionals(HelpTestCase):
 
         Options:
           -h, --help       show this help message and exit
-          -d, --debug      display more verbose messages
           -x               X HELP
           --y Y            Y HELP
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
 
     version = ''
@@ -3307,8 +3302,10 @@ class TestHelpReformatting(HelpTestCase):
         description='   oddly    formatted\n'
                     'description\n'
                     '\n'
-                    'that is extra extra extra extra looooooooooooooooooooooooooooooooooong long long that it should go onto multiple '
-                    'lines when wrapped')
+                    'that is extra extra extra extra loooooooooooooooooooooooooooooooooooooooooooooooooooooooooong long long that it should go onto multiple '
+                    'lines when wrapped',
+        add_debug=False,
+        add_config=False)
     argument_signatures = [
         Sig('-x', metavar='XX', help='oddly\n'
                                      '    formatted -x help'),
@@ -3322,33 +3319,29 @@ class TestHelpReformatting(HelpTestCase):
          [Sig('-a', action='store_true',
               help=' oddly \n'
                    'formatted    -a  help  \n'
-                   '    again, so extra super duper looooooooooooooooooooooooooooooooooooooong that it should be wrapped over '
+                   '    again, so extra super duper loooooooooooooooooooooooooooooooooooooooooooooooooooooooooong that it should be wrapped over '
                    'multiple lines')]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [-x XX] [-a] yyy
+        usage: PROG [-h] [-x XX] [-a] yyy
         '''
     help = usage + '''\
 
-        oddly formatted description that is extra extra extra extra looooooooooooooooooooooooooooooooooong long long that it should go onto multiple lines
-        when wrapped
+        oddly formatted description that is extra extra extra extra loooooooooooooooooooooooooooooooooooooooooooooooooooooooooong long long that it should go
+        onto multiple lines when wrapped
 
         Positional arguments:
-          yyy          normal y help
+          yyy         normal y help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          -x XX        oddly formatted -x help
+          -h, --help  show this help message and exit
+          -x XX       oddly formatted -x help
 
         title:
           oddly formatted group description
 
-          -a           oddly formatted -a help again, so extra super duper looooooooooooooooooooooooooooooooooooooong that it should be wrapped over multiple
-                       lines
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -a          oddly formatted -a help again, so extra super duper loooooooooooooooooooooooooooooooooooooooooooooooooooooooooong that it should be
+                      wrapped over multiple lines
         '''
     version = ''
 
@@ -3356,7 +3349,7 @@ class TestHelpReformatting(HelpTestCase):
 class TestHelpWrappingShortNames(HelpTestCase):
     """Make sure that text after short names starts on the first line"""
 
-    parser_signature = Sig(prog='PROG', description= 'D\nD' * 55)
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False, description= 'D\nD' * 55)
     argument_signatures = [
         Sig('-x', metavar='XX', help='XHH HX' * 30),
         Sig('y', metavar='yyy', help='YH YH' * 30),
@@ -3366,7 +3359,7 @@ class TestHelpWrappingShortNames(HelpTestCase):
             Sig('-a', action='store_true', help='AHHH HHA' * 20)]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [-x XX] [-a] yyy
+        usage: PROG [-h] [-x XX] [-a] yyy
         '''
     help = usage + '''\
 
@@ -3374,21 +3367,17 @@ class TestHelpWrappingShortNames(HelpTestCase):
         DD DD DD DD DD D
 
         Positional arguments:
-          yyy          YH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH
-                       YHYH YHYH YHYH YH
+          yyy         YH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH YHYH
+                      YHYH YHYH YHYH YH
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          -x XX        XHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH
-                       HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HX
+          -h, --help  show this help message and exit
+          -x XX       XHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH
+                      HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HXXHH HX
 
         ALPHAS:
-          -a           AHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH
-                       HHAAHHH HHAAHHH HHAAHHH HHA
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -a          AHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH HHAAHHH
+                      HHAAHHH HHAAHHH HHAAHHH HHA
         '''
     version = ''
 
@@ -3396,7 +3385,7 @@ class TestHelpWrappingShortNames(HelpTestCase):
 class TestHelpWrappingLongNames(HelpTestCase):
     """Make sure that text after long names starts on the next line"""
 
-    parser_signature = Sig(usage='USAGE', description= 'D D' * 55)
+    parser_signature = Sig(usage='USAGE', add_debug=False, add_config=False, description= 'D D' * 55)
     argument_signatures = [
         Sig('-v', '--version', action='version', version='V V' * 30),
         Sig('-x', metavar='X' * 25, help='XH XH' * 30),
@@ -3421,7 +3410,6 @@ class TestHelpWrappingLongNames(HelpTestCase):
 
         Options:
           -h, --help                    show this help message and exit
-          -d, --debug                   display more verbose messages
           -v, --version                 show program's version number and exit
           -x XXXXXXXXXXXXXXXXXXXXXXXXX  XH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH XHXH
                                         XHXH XHXH XHXH XHXH XHXH XHXH XH
@@ -3431,9 +3419,6 @@ class TestHelpWrappingLongNames(HelpTestCase):
                                         AHAH AHAH AHAH AHAH AHAH AHAH AH
           zzzzzzzzzzzzzzzzzzzzzzzzz     ZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH
                                         ZHZH ZHZH ZHZH ZHZH ZHZH ZHZH ZH
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = '''\
         V VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV VV \
@@ -3445,7 +3430,7 @@ VV VV VV
 class TestHelpUsage(HelpTestCase):
     """Test basic usage messages"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-w', nargs='+', help='w'),
         Sig('-x', nargs='*', help='x'),
@@ -3462,7 +3447,7 @@ class TestHelpUsage(HelpTestCase):
         ])
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [-w W [W ...]] [-x [X [X ...]]] [-y [Y]] [-z Z Z Z] a b b [c] [f [f ...]] e [e ...]
+        usage: PROG [-h] [-w W [W ...]] [-x [X [X ...]]] [-y [Y]] [-z Z Z Z] a b b [c] [f [f ...]] e [e ...]
         '''
     help = usage + '''\
 
@@ -3473,7 +3458,6 @@ class TestHelpUsage(HelpTestCase):
 
         Options:
           -h, --help      show this help message and exit
-          -d, --debug     display more verbose messages
           -w W [W ...]    w
           -x [X [X ...]]  x
 
@@ -3482,9 +3466,6 @@ class TestHelpUsage(HelpTestCase):
           -z Z Z Z        z
           f               f (REQUIRED)
           e               e
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3492,7 +3473,7 @@ class TestHelpUsage(HelpTestCase):
 class TestHelpOnlyUserGroups(HelpTestCase):
     """Test basic usage messages"""
 
-    parser_signature = Sig(prog='PROG', add_help=False)
+    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False, add_config=False)
     argument_signatures = []
     argument_group_signatures = [
         (Sig('xxxx'), [
@@ -3505,23 +3486,17 @@ class TestHelpOnlyUserGroups(HelpTestCase):
         ]),
     ]
     usage = '''\
-        usage: PROG [-d] [-x X] [-y Y] a b
+        usage: PROG [-x X] [-y Y] a b
         '''
     help = usage + '''\
 
-        Options:
-          -d, --debug  display more verbose messages
-
         xxxx:
-          -x X         x
-          a            a
+          -x X  x
+          a     a
 
         yyyy:
-          b            b
-          -y Y         y
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          b     b
+          -y Y  y
         '''
     version = ''
 
@@ -3529,7 +3504,7 @@ class TestHelpOnlyUserGroups(HelpTestCase):
 class TestHelpUsageLongProg(HelpTestCase):
     """Test usage messages where the prog is long"""
 
-    parser_signature = Sig(prog='P' * 75)
+    parser_signature = Sig(prog='P' * 75, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-w', metavar='W'),
         Sig('-x', metavar='X'),
@@ -3538,7 +3513,7 @@ class TestHelpUsageLongProg(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP [-h] [-d] [-w W] [-x X] a b
+        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP [-h] [-w W] [-x X] a b
         '''
     help = usage + '''\
 
@@ -3547,13 +3522,9 @@ class TestHelpUsageLongProg(HelpTestCase):
           b
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
+          -h, --help  show this help message and exit
           -w W
           -x X
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3561,7 +3532,7 @@ class TestHelpUsageLongProg(HelpTestCase):
 class TestHelpUsageLongProgOptionsWrap(HelpTestCase):
     """Test usage messages where the prog is long and the optionals wrap"""
 
-    parser_signature = Sig(prog='P' * 75)
+    parser_signature = Sig(prog='P' * 75, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-w', metavar='W' * 25),
         Sig('-x', metavar='X' * 25),
@@ -3572,9 +3543,8 @@ class TestHelpUsageLongProgOptionsWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP [-h] [-d] [-w WWWWWWWWWWWWWWWWWWWWWWWWW]
-                                                                                           [-x XXXXXXXXXXXXXXXXXXXXXXXXX] [-y YYYYYYYYYYYYYYYYYYYYYYYYY]
-                                                                                           [-z ZZZZZZZZZZZZZZZZZZZZZZZZZ]
+        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP [-h] [-w WWWWWWWWWWWWWWWWWWWWWWWWW] [-x XXXXXXXXXXXXXXXXXXXXXXXXX]
+                                                                                           [-y YYYYYYYYYYYYYYYYYYYYYYYYY] [-z ZZZZZZZZZZZZZZZZZZZZZZZZZ]
                                                                                            a b
         '''
     help = usage + '''\
@@ -3585,14 +3555,10 @@ class TestHelpUsageLongProgOptionsWrap(HelpTestCase):
 
         Options:
           -h, --help                    show this help message and exit
-          -d, --debug                   display more verbose messages
           -w WWWWWWWWWWWWWWWWWWWWWWWWW
           -x XXXXXXXXXXXXXXXXXXXXXXXXX
           -y YYYYYYYYYYYYYYYYYYYYYYYYY
           -z ZZZZZZZZZZZZZZZZZZZZZZZZZ
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3600,7 +3566,7 @@ class TestHelpUsageLongProgOptionsWrap(HelpTestCase):
 class TestHelpUsageLongProgPositionalsWrap(HelpTestCase):
     """Test usage messages where the prog is long and the positionals wrap"""
 
-    parser_signature = Sig(prog='P' * 75, add_help=False)
+    parser_signature = Sig(prog='P' * 75, add_help=False, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('a' * 35),
         Sig('b' * 35),
@@ -3608,8 +3574,7 @@ class TestHelpUsageLongProgPositionalsWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP [-d]
-                                                                                           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        usage: PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                                                                                            bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
                                                                                            ccccccccccccccccccccccccccccccccccc
         '''
@@ -3619,12 +3584,6 @@ class TestHelpUsageLongProgPositionalsWrap(HelpTestCase):
           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
           ccccccccccccccccccccccccccccccccccc
-
-        Options:
-          -d, --debug                          display more verbose messages
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3632,7 +3591,7 @@ class TestHelpUsageLongProgPositionalsWrap(HelpTestCase):
 class TestHelpUsageOptionalsWrap(HelpTestCase):
     """Test usage messages where the optionals wrap"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-w', metavar='W' * 45),
         Sig('-x', metavar='X' * 45),
@@ -3644,7 +3603,7 @@ class TestHelpUsageOptionalsWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-w WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW] [-x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+        usage: PROG [-h] [-w WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW] [-x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
                     [-y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY] [-z ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ]
                     a b c
         '''
@@ -3657,14 +3616,10 @@ class TestHelpUsageOptionalsWrap(HelpTestCase):
 
         Options:
           -h, --help                                        show this help message and exit
-          -d, --debug                                       display more verbose messages
           -w WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
           -x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           -y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
           -z ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3672,7 +3627,7 @@ class TestHelpUsageOptionalsWrap(HelpTestCase):
 class TestHelpUsagePositionalsWrap(HelpTestCase):
     """Test usage messages where the positionals wrap"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-x'),
         Sig('-y'),
@@ -3684,7 +3639,7 @@ class TestHelpUsagePositionalsWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-x X] [-y Y] [-z Z]
+        usage: PROG [-h] [-x X] [-y Y] [-z Z]
                     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ccccccccccccccccccccccccccccccccccccccccccccc
                     eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
         '''
@@ -3698,13 +3653,9 @@ class TestHelpUsagePositionalsWrap(HelpTestCase):
 
         Options:
           -h, --help                                     show this help message and exit
-          -d, --debug                                    display more verbose messages
           -x X
           -y Y
           -z Z
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3712,7 +3663,7 @@ class TestHelpUsagePositionalsWrap(HelpTestCase):
 class TestHelpUsageOptionalsPositionalsWrap(HelpTestCase):
     """Test usage messages where the optionals and positionals wrap"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-x', metavar='X' * 45),
         Sig('-y', metavar='Y' * 45),
@@ -3724,7 +3675,7 @@ class TestHelpUsageOptionalsPositionalsWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] [-y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY]
+        usage: PROG [-h] [-x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] [-y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY]
                     [-z ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ]
                     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ccccccccccccccccccccccccccccccccccccccccccccc
                     eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
@@ -3739,13 +3690,9 @@ class TestHelpUsageOptionalsPositionalsWrap(HelpTestCase):
 
         Options:
           -h, --help                                        show this help message and exit
-          -d, --debug                                       display more verbose messages
           -x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           -y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
           -z ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3753,7 +3700,7 @@ class TestHelpUsageOptionalsPositionalsWrap(HelpTestCase):
 class TestHelpUsageOptionalsOnlyWrap(HelpTestCase):
     """Test usage messages where there are only optionals and they wrap"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-x', metavar='X' * 45),
         Sig('-y', metavar='Y' * 45),
@@ -3761,20 +3708,16 @@ class TestHelpUsageOptionalsOnlyWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] [-y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY]
+        usage: PROG [-h] [-x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] [-y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY]
                     [-z ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ]
         '''
     help = usage + '''\
 
         Options:
           -h, --help                                        show this help message and exit
-          -d, --debug                                       display more verbose messages
           -x XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           -y YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
           -z ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3782,7 +3725,7 @@ class TestHelpUsageOptionalsOnlyWrap(HelpTestCase):
 class TestHelpUsagePositionalsOnlyWrap(HelpTestCase):
     """Test usage messages where there are only positionals and they wrap"""
 
-    parser_signature = Sig(prog='PROG', add_help=False)
+    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('a' * 45),
         Sig('b' * 45),
@@ -3791,8 +3734,7 @@ class TestHelpUsagePositionalsOnlyWrap(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-d]
-                    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ccccccccccccccccccccccccccccccccccccccccccccc
+        usage: PROG aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ccccccccccccccccccccccccccccccccccccccccccccc
                     eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
         '''
     help = usage + '''\
@@ -3802,12 +3744,6 @@ class TestHelpUsagePositionalsOnlyWrap(HelpTestCase):
           bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
           ccccccccccccccccccccccccccccccccccccccccccccc
           eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-
-        Options:
-          -d, --debug                                    display more verbose messages
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3815,7 +3751,7 @@ class TestHelpUsagePositionalsOnlyWrap(HelpTestCase):
 class TestHelpVariableExpansion(HelpTestCase):
     """Test that variables are expanded properly in help messages"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-x', type=int,
             help='x %(prog)s %(default)s %(type)s %%'),
@@ -3835,7 +3771,7 @@ class TestHelpVariableExpansion(HelpTestCase):
         ])
     ]
     usage = ('''\
-        usage: PROG [-h] [-d] [-x X] [-y] [--foo {a,b,c}] [--bar BBB] [-a A] [-b B] spam badger
+        usage: PROG [-h] [-x X] [-y] [--foo {a,b,c}] [--bar BBB] [-a A] [-b B] spam badger
         ''')
     help = usage + '''\
 
@@ -3845,7 +3781,6 @@ class TestHelpVariableExpansion(HelpTestCase):
 
         Options:
           -h, --help     show this help message and exit
-          -d, --debug    display more verbose messages
           -x X           x PROG None int %
           -y             y PROG 42 XXX
           --foo {a,b,c}  foo PROG None a, b, c
@@ -3854,9 +3789,6 @@ class TestHelpVariableExpansion(HelpTestCase):
         group:
           -a A           a PROG None
           -b B           b PROG -1
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3864,7 +3796,7 @@ class TestHelpVariableExpansion(HelpTestCase):
 class TestHelpVariableExpansionUsageSupplied(HelpTestCase):
     """Test that variables are expanded properly when usage= is present"""
 
-    parser_signature = Sig(prog='PROG', usage='%(prog)s FOO')
+    parser_signature = Sig(prog='PROG', usage='%(prog)s FOO', add_debug=False, add_config=False)
     argument_signatures = []
     argument_group_signatures = []
     usage = ('''\
@@ -3873,11 +3805,7 @@ class TestHelpVariableExpansionUsageSupplied(HelpTestCase):
     help = usage + '''\
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
         '''
     version = ''
 
@@ -3885,7 +3813,7 @@ class TestHelpVariableExpansionUsageSupplied(HelpTestCase):
 class TestHelpVariableExpansionNoArguments(HelpTestCase):
     """Test that variables are expanded properly with no arguments"""
 
-    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False, epilog='')
+    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False, add_config=False, epilog='')
     argument_signatures = []
     argument_group_signatures = []
     usage = ('''\
@@ -3898,7 +3826,7 @@ class TestHelpVariableExpansionNoArguments(HelpTestCase):
 class TestHelpSuppressUsage(HelpTestCase):
     """Test that items can be suppressed in usage messages"""
 
-    parser_signature = Sig(prog='PROG', usage=pyapputil.argutil.SUPPRESS)
+    parser_signature = Sig(prog='PROG', usage=pyapputil.argutil.SUPPRESS, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo', help='foo help'),
         Sig('spam', help='spam help'),
@@ -3906,15 +3834,11 @@ class TestHelpSuppressUsage(HelpTestCase):
     argument_group_signatures = []
     help = '''\
         Positional arguments:
-          spam         spam help
+          spam        spam help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO    foo help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          --foo FOO   foo help
         '''
     usage = ''
     version = ''
@@ -3923,7 +3847,7 @@ class TestHelpSuppressUsage(HelpTestCase):
 class TestHelpSuppressOptional(HelpTestCase):
     """Test that optional arguments can be suppressed in help messages"""
 
-    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False)
+    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo', help=pyapputil.argutil.SUPPRESS),
         Sig('spam', help='spam help'),
@@ -3936,9 +3860,6 @@ class TestHelpSuppressOptional(HelpTestCase):
 
         Positional arguments:
           spam  spam help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -3946,7 +3867,7 @@ class TestHelpSuppressOptional(HelpTestCase):
 class TestHelpSuppressOptionalGroup(HelpTestCase):
     """Test that optional groups can be suppressed in help messages"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo', help='foo help'),
         Sig('spam', help='spam help'),
@@ -3955,20 +3876,16 @@ class TestHelpSuppressOptionalGroup(HelpTestCase):
         (Sig('group'), [Sig('--bar', help=pyapputil.argutil.SUPPRESS)]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO] spam
+        usage: PROG [-h] [--foo FOO] spam
         '''
     help = usage + '''\
 
         Positional arguments:
-          spam         spam help
+          spam        spam help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO    foo help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          --foo FOO   foo help
         '''
     version = ''
 
@@ -3976,24 +3893,20 @@ class TestHelpSuppressOptionalGroup(HelpTestCase):
 class TestHelpSuppressPositional(HelpTestCase):
     """Test that positional arguments can be suppressed in help messages"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo', help='foo help'),
         Sig('spam', help=pyapputil.argutil.SUPPRESS),
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO]
+        usage: PROG [-h] [--foo FOO]
         '''
     help = usage + '''\
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO    foo help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          --foo FOO   foo help
         '''
     version = ''
 
@@ -4001,23 +3914,19 @@ class TestHelpSuppressPositional(HelpTestCase):
 class TestHelpRequiredOptional(HelpTestCase):
     """Test that required options don't look optional"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo', required=True, help='foo help'),
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] --foo FOO
+        usage: PROG [-h] --foo FOO
         '''
     help = usage + '''\
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO    foo help (REQUIRED)
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          --foo FOO   foo help (REQUIRED)
         '''
     version = ''
 
@@ -4025,24 +3934,20 @@ class TestHelpRequiredOptional(HelpTestCase):
 class TestHelpAlternatePrefixChars(HelpTestCase):
     """Test that options display with different prefix characters"""
 
-    parser_signature = Sig(prog='PROG', prefix_chars='^;', add_help=False)
+    parser_signature = Sig(prog='PROG', prefix_chars='^;', add_help=False, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('^^foo', action='store_true', help='foo help'),
         Sig(';b', ';;bar', help='bar help'),
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [^d] [^^foo] [;b BAR]
+        usage: PROG [^^foo] [;b BAR]
         '''
     help = usage + '''\
 
         Options:
-          ^d, ^^debug        display more verbose messages
           ^^foo              foo help
           ;b BAR, ;;bar BAR  bar help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -4050,7 +3955,7 @@ class TestHelpAlternatePrefixChars(HelpTestCase):
 class TestHelpNoHelpOptional(HelpTestCase):
     """Test that the --help argument can be suppressed help messages"""
 
-    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False)
+    parser_signature = Sig(prog='PROG', add_help=False, add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo', help='foo help'),
         Sig('spam', help='spam help'),
@@ -4066,9 +3971,6 @@ class TestHelpNoHelpOptional(HelpTestCase):
 
         Options:
           --foo FOO  foo help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -4076,14 +3978,14 @@ class TestHelpNoHelpOptional(HelpTestCase):
 class TestHelpNone(HelpTestCase):
     """Test that no errors occur if no help is specified"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('--foo'),
         Sig('spam'),
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO] spam
+        usage: PROG [-h] [--foo FOO] spam
         '''
     help = usage + '''\
 
@@ -4091,12 +3993,8 @@ class TestHelpNone(HelpTestCase):
           spam
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
+          -h, --help  show this help message and exit
           --foo FOO
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -4104,7 +4002,7 @@ class TestHelpNone(HelpTestCase):
 class TestHelpTupleMetavar(HelpTestCase):
     """Test specifying metavar as a tuple"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-w', help='w', nargs='+', metavar=('W1', 'W2')),
         Sig('-x', help='x', nargs='*', metavar=('X1', 'X2')),
@@ -4113,21 +4011,17 @@ class TestHelpTupleMetavar(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-w W1 [W2 ...]] [-x [X1 [X2 ...]]] [-y Y1 Y2 Y3] \
+        usage: PROG [-h] [-w W1 [W2 ...]] [-x [X1 [X2 ...]]] [-y Y1 Y2 Y3] \
 [-z [Z1]]
         '''
     help = usage + '''\
 
         Options:
           -h, --help        show this help message and exit
-          -d, --debug       display more verbose messages
           -w W1 [W2 ...]    w
           -x [X1 [X2 ...]]  x
           -y Y1 Y2 Y3       y
           -z [Z1]           z
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -4137,6 +4031,7 @@ class TestHelpRawText(HelpTestCase):
 
     parser_signature = Sig(
         prog='PROG', formatter_class=pyapputil.argutil.RawTextHelpFormatter,
+        add_debug=False, add_config=False,
         description='Keep the formatting\n'
                     '    exactly as it is written\n'
                     '\n'
@@ -4154,7 +4049,7 @@ class TestHelpRawText(HelpTestCase):
          [Sig('--bar', help='bar help')]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO] [--bar BAR] spam
+        usage: PROG [-h] [--foo FOO] [--bar BAR] spam
         '''
     help = usage + '''\
 
@@ -4164,22 +4059,19 @@ class TestHelpRawText(HelpTestCase):
         here
 
         Positional arguments:
-          spam         spam help
+          spam        spam help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO        foo help should also
-                       appear as given here
+          -h, --help  show this help message and exit
+          --foo FOO       foo help should also
+                      appear as given here
 
         title:
               This text
             should be indented
               exactly like it is here
 
-          --bar BAR    bar help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the env variable are set and the command line argument specified, the command line will take precedence.
+          --bar BAR   bar help
         '''
     version = ''
 
@@ -4189,6 +4081,7 @@ class TestHelpRawDescription(HelpTestCase):
 
     parser_signature = Sig(
         prog='PROG', formatter_class=pyapputil.argutil.RawDescriptionHelpFormatter,
+        add_debug=False, add_config=False,
         description='Keep the formatting\n'
                     '    exactly as it is written\n'
                     '\n'
@@ -4206,7 +4099,7 @@ class TestHelpRawDescription(HelpTestCase):
          [Sig('--bar', help='bar help')]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO] [--bar BAR] spam
+        usage: PROG [-h] [--foo FOO] [--bar BAR] spam
         '''
     help = usage + '''\
 
@@ -4216,21 +4109,18 @@ class TestHelpRawDescription(HelpTestCase):
         here
 
         Positional arguments:
-          spam         spam help
+          spam        spam help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO    foo help should not retain this odd formatting
+          -h, --help  show this help message and exit
+          --foo FOO   foo help should not retain this odd formatting
 
         title:
               This text
             should be indented
               exactly like it is here
 
-          --bar BAR    bar help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the env variable are set and the command line argument specified, the command line will take precedence.
+          --bar BAR   bar help
         '''
     version = ''
 
@@ -4240,6 +4130,7 @@ class TestHelpArgumentDefaults(HelpTestCase):
 
     parser_signature = Sig(
         prog='PROG', formatter_class=pyapputil.argutil.ArgumentDefaultsHelpFormatter,
+        add_debug=False, add_config=False,
         description='description')
 
     argument_signatures = [
@@ -4253,40 +4144,36 @@ class TestHelpArgumentDefaults(HelpTestCase):
          [Sig('--baz', type=int, default=42, help='baz help')]),
     ]
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO] [--bar] [--baz BAZ] spam [badger]
+        usage: PROG [-h] [--foo FOO] [--bar] [--baz BAZ] spam [badger]
         '''
     help = usage + '''\
 
         description
 
         Positional arguments:
-          spam         spam help
-          badger       badger help (default: wooden)
+          spam        spam help
+          badger      badger help (default: wooden)
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages (default: 0)
-          --foo FOO    foo help - oh and by the way, None
-          --bar        bar help (default: False)
+          -h, --help  show this help message and exit
+          --foo FOO   foo help - oh and by the way, None
+          --bar       bar help (default: False)
 
         title:
           description
 
-          --baz BAZ    baz help (default: 42)
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          --baz BAZ   baz help (default: 42)
         '''
     version = ''
 
 class TestHelpVersionAction(HelpTestCase):
     """Test the default help for the version action"""
 
-    parser_signature = Sig(prog='PROG', description='description')
+    parser_signature = Sig(prog='PROG', description='description', add_debug=False, add_config=False)
     argument_signatures = [Sig('-V', '--version', action='version', version='3.6')]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-V]
+        usage: PROG [-h] [-V]
         '''
     help = usage + '''\
 
@@ -4294,11 +4181,7 @@ class TestHelpVersionAction(HelpTestCase):
 
         Options:
           -h, --help     show this help message and exit
-          -d, --debug    display more verbose messages
           -V, --version  show program's version number and exit
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -4306,7 +4189,7 @@ class TestHelpVersionAction(HelpTestCase):
 class TestHelpVersionActionSuppress(HelpTestCase):
     """Test that the --version argument can be suppressed in help messages"""
 
-    parser_signature = Sig(prog='PROG')
+    parser_signature = Sig(prog='PROG', add_debug=False, add_config=False)
     argument_signatures = [
         Sig('-v', '--version', action='version', version='1.0',
             help=pyapputil.argutil.SUPPRESS),
@@ -4315,26 +4198,23 @@ class TestHelpVersionActionSuppress(HelpTestCase):
     ]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [--foo FOO] spam
+        usage: PROG [-h] [--foo FOO] spam
         '''
     help = usage + '''\
 
         Positional arguments:
-          spam         spam help
+          spam        spam help
 
         Options:
-          -h, --help   show this help message and exit
-          -d, --debug  display more verbose messages
-          --foo FOO    foo help
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
+          -h, --help  show this help message and exit
+          --foo FOO   foo help
         '''
 
 
 class TestHelpSubparsersOrdering(HelpTestCase):
     """Test ordering of subcommands in help matches the code"""
     parser_signature = Sig(prog='PROG',
+                           add_debug=False, add_config=False,
                            description='display some subcommands')
     argument_signatures = [Sig('-v', '--version', action='version', version='0.1')]
 
@@ -4342,7 +4222,7 @@ class TestHelpSubparsersOrdering(HelpTestCase):
                              for name in ('a', 'b', 'c', 'd', 'e')]
 
     usage = '''\
-        usage: PROG [-h] [-d] [-v] {a,b,c,d,e} ...
+        usage: PROG [-h] [-v] {a,b,c,d,e} ...
         '''
 
     help = usage + '''\
@@ -4354,11 +4234,7 @@ class TestHelpSubparsersOrdering(HelpTestCase):
 
         Options:
           -h, --help     show this help message and exit
-          -d, --debug    display more verbose messages
           -v, --version  show program's version number and exit
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
 
     version = '''\
@@ -4368,6 +4244,7 @@ class TestHelpSubparsersOrdering(HelpTestCase):
 class TestHelpSubparsersWithHelpOrdering(HelpTestCase):
     """Test ordering of subcommands in help matches the code"""
     parser_signature = Sig(prog='PROG',
+                           add_debug=False, add_config=False,
                            description='display some subcommands')
     argument_signatures = [Sig('-v', '--version', action='version', version='0.1')]
 
@@ -4382,7 +4259,7 @@ class TestHelpSubparsersWithHelpOrdering(HelpTestCase):
                              for name, help in subcommand_data]
 
     usage = '''\
-        usage: PROG [-h] [-d] [-v] {a,b,c,d,e} ...
+        usage: PROG [-h] [-v] {a,b,c,d,e} ...
         '''
 
     help = usage + '''\
@@ -4399,11 +4276,7 @@ class TestHelpSubparsersWithHelpOrdering(HelpTestCase):
 
         Options:
           -h, --help     show this help message and exit
-          -d, --debug    display more verbose messages
           -v, --version  show program's version number and exit
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
 
     version = '''\
@@ -4419,13 +4292,14 @@ class TestHelpMetavarTypeFormatter(HelpTestCase):
         return string
 
     parser_signature = Sig(prog='PROG', description='description',
+                           add_debug=False, add_config=False,
                            formatter_class=pyapputil.argutil.MetavarTypeHelpFormatter)
     argument_signatures = [Sig('a', type=int),
                            Sig('-b', type=custom_type),
                            Sig('-c', type=float, metavar='SOME FLOAT')]
     argument_group_signatures = []
     usage = '''\
-        usage: PROG [-h] [-d] [-b custom_type] [-c SOME FLOAT] int
+        usage: PROG [-h] [-b custom_type] [-c SOME FLOAT] int
         '''
     help = usage + '''\
 
@@ -4436,12 +4310,8 @@ class TestHelpMetavarTypeFormatter(HelpTestCase):
 
         Options:
           -h, --help      show this help message and exit
-          -d, --debug     display more verbose messages
           -b custom_type
           -c SOME FLOAT
-
-        Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-        env variable are set and the command line argument specified, the command line will take precedence.
         '''
     version = ''
 
@@ -4610,6 +4480,7 @@ class TestConflictHandling(TestCase):
 
     def test_bad_type(self):
         self.assertRaises(ValueError, pyapputil.argutil.ArgumentParser,
+                          add_debug=False, add_config=False,
                           conflict_handler='foo')
 
     def test_conflict_error(self):
@@ -4623,35 +4494,27 @@ class TestConflictHandling(TestCase):
 
     def test_resolve_error(self):
         get_parser = pyapputil.argutil.ArgumentParser
-        parser = get_parser(prog='PROG', conflict_handler='resolve')
+        parser = get_parser(prog='PROG', conflict_handler='resolve', add_debug=False, add_config=False)
 
         parser.add_argument('-x', help='OLD X')
         parser.add_argument('-x', help='NEW X')
         self.assertEqual(parser.format_help(), textwrap.dedent('''\
-            usage: PROG [-h] [-d] [-x X]
+            usage: PROG [-h] [-x X]
 
             Options:
-              -h, --help   show this help message and exit
-              -d, --debug  display more verbose messages
-              -x X         NEW X
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
+              -h, --help  show this help message and exit
+              -x X        NEW X
             '''))
 
         parser.add_argument('--spam', metavar='OLD_SPAM')
         parser.add_argument('--spam', metavar='NEW_SPAM')
         self.assertEqual(parser.format_help(), textwrap.dedent('''\
-            usage: PROG [-h] [-d] [-x X] [--spam NEW_SPAM]
+            usage: PROG [-h] [-x X] [--spam NEW_SPAM]
 
             Options:
               -h, --help       show this help message and exit
-              -d, --debug      display more verbose messages
               -x X             NEW X
               --spam NEW_SPAM
-
-            Options with an env: in the description can be specified with the corresponding environment variable instead of the command line argument. If both the
-            env variable are set and the command line argument specified, the command line will take precedence.
             '''))
 
 
@@ -4879,11 +4742,11 @@ class TestArgumentTypeError(TestCase):
         def spam(string):
             raise pyapputil.argutil.ArgumentTypeError('spam!')
 
-        parser = ErrorRaisingArgumentParser(prog='PROG', add_help=False)
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_help=False, add_debug=False, add_config=False)
         parser.add_argument('x', type=spam)
         with self.assertRaises(ArgumentParserError) as cm:
             parser.parse_args(['XXX'])
-        self.assertEqual('usage: PROG [-d] x\nPROG: error: argument x: spam!\n',
+        self.assertEqual('usage: PROG x\nPROG: error: argument x: spam!\n',
                          cm.exception.stderr)
 
 # =========================
@@ -4958,10 +4821,10 @@ class TestTypeFunctionCallOnlyOnce(TestCase):
             self.assertEqual(string_to_convert, 'spam!')
             return 'foo_converted'
 
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('--foo', type=spam, default='bar')
         args = parser.parse_args('--foo spam!'.split())
-        self.assertEqual(NS(foo='foo_converted', debug=0), args)
+        self.assertEqual(NS(foo='foo_converted'), args)
 
 # ==================================================================
 # Check semantics regarding the default argument and type conversion
@@ -4974,33 +4837,33 @@ class TestTypeFunctionCalledOnDefault(TestCase):
             self.assertEqual(int_to_convert, 0)
             return 'foo_converted'
 
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('--foo', type=spam, default=0)
         args = parser.parse_args([])
         # foo should *not* be converted because its default is not a string.
-        self.assertEqual(NS(foo=0, debug=0), args)
+        self.assertEqual(NS(foo=0), args)
 
     def test_type_function_call_with_string_default(self):
         def spam(int_to_convert):
             return 'foo_converted'
 
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('--foo', type=spam, default='0')
         args = parser.parse_args([])
         # foo is converted because its default is a string.
-        self.assertEqual(NS(foo='foo_converted', debug=0), args)
+        self.assertEqual(NS(foo='foo_converted'), args)
 
     def test_no_double_type_conversion_of_default(self):
         def extend(str_to_convert):
             return str_to_convert + '*'
 
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('--test', type=extend, default='*')
         args = parser.parse_args([])
         # The test argument will be two stars, one coming from the default
         # value and one coming from the type conversion being called exactly
         # once.
-        self.assertEqual(NS(test='**', debug=0), args)
+        self.assertEqual(NS(test='**'), args)
 
     def test_issue_15906(self):
         # Issue #15906: When action='append', type=str, default=[] are
@@ -5019,39 +4882,39 @@ class TestTypeFunctionCalledOnDefault(TestCase):
 class TestParseKnownArgs(TestCase):
 
     def test_arguments_tuple(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.parse_args(())
 
     def test_arguments_list(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.parse_args([])
 
     def test_arguments_tuple_positional(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('x')
         parser.parse_args(('x',))
 
     def test_arguments_list_positional(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('x')
         parser.parse_args(['x'])
 
     def test_optionals(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('--foo')
         args, extras = parser.parse_known_args('--foo F --bar --baz'.split())
-        self.assertEqual(NS(foo='F', debug=0), args)
+        self.assertEqual(NS(foo='F'), args)
         self.assertEqual(['--bar', '--baz'], extras)
 
     def test_mixed(self):
-        parser = pyapputil.argutil.ArgumentParser()
+        parser = pyapputil.argutil.ArgumentParser(add_debug=False, add_config=False)
         parser.add_argument('-v', nargs='?', const=1, type=int)
         parser.add_argument('--spam', action='store_false')
         parser.add_argument('badger')
 
         argv = ["B", "C", "--foo", "-v", "3", "4"]
         args, extras = parser.parse_known_args(argv)
-        self.assertEqual(NS(v=3, spam=True, badger="B", debug=0), args)
+        self.assertEqual(NS(v=3, spam=True, badger="B"), args)
         self.assertEqual(["C", "--foo", "4"], extras)
 
 # ===========================
@@ -5061,7 +4924,7 @@ class TestParseKnownArgs(TestCase):
 class TestIntermixedArgs(TestCase):
     def test_basic(self):
         # test parsing intermixed optionals and positionals
-        parser = pyapputil.argutil.ArgumentParser(prog='PROG')
+        parser = pyapputil.argutil.ArgumentParser(prog='PROG', add_debug=False, add_config=False)
         parser.add_argument('--foo', dest='foo')
         bar = parser.add_argument('--bar', dest='bar', required=True)
         parser.add_argument('cmd')
@@ -5069,17 +4932,17 @@ class TestIntermixedArgs(TestCase):
         argv = 'cmd --foo x 1 --bar y 2 3'.split()
         args = parser.parse_intermixed_args(argv)
         # rest gets [1,2,3] despite the foo and bar strings
-        self.assertEqual(NS(bar='y', cmd='cmd', foo='x', rest=[1, 2, 3], debug=0), args)
+        self.assertEqual(NS(bar='y', cmd='cmd', foo='x', rest=[1, 2, 3]), args)
 
         args, extras = parser.parse_known_args(argv)
         # cannot parse the '1,2,3'
-        self.assertEqual(NS(bar='y', cmd='cmd', foo='x', rest=[], debug=0), args)
+        self.assertEqual(NS(bar='y', cmd='cmd', foo='x', rest=[]), args)
         self.assertEqual(["1", "2", "3"], extras)
 
         argv = 'cmd --foo x 1 --error 2 --bar y 3'.split()
         args, extras = parser.parse_known_intermixed_args(argv)
         # unknown optionals go into extras
-        self.assertEqual(NS(bar='y', cmd='cmd', foo='x', rest=[1], debug=0), args)
+        self.assertEqual(NS(bar='y', cmd='cmd', foo='x', rest=[1]), args)
         self.assertEqual(['--error', '2', '3'], extras)
 
         # restores attributes that were temporarily changed
@@ -5101,13 +4964,13 @@ class TestIntermixedArgs(TestCase):
 
     def test_exclusive(self):
         # mutually exclusive group; intermixed works fine
-        parser = ErrorRaisingArgumentParser(prog='PROG')
+        parser = ErrorRaisingArgumentParser(prog='PROG', add_debug=False, add_config=False)
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument('--foo', action='store_true', help='FOO')
         group.add_argument('--spam', help='SPAM')
         parser.add_argument('badger', nargs='*', default='X', help='BADGER')
         args = parser.parse_intermixed_args('1 --foo 2'.split())
-        self.assertEqual(NS(badger=['1', '2'], foo=True, spam=None, debug=0), args)
+        self.assertEqual(NS(badger=['1', '2'], foo=True, spam=None), args)
         self.assertRaises(ArgumentParserError, parser.parse_intermixed_args, '1 2'.split())
         self.assertEqual(group.required, True)
 
