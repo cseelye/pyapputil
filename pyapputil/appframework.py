@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """Helper for creating simple command line applications"""
 
 import atexit
@@ -93,7 +93,7 @@ class PythonApp(object):
         def UnhandledException(extype, ex, tb):
             """Create a global handler to log any uncaught exceptions from any threads"""
             if extype not in [KeyboardInterrupt, SystemExit]:
-                self.log.error("Unexpected exception in thread {}: {} {}\n{}".format(threading.currentThread().name, extype.__name__, ex, "".join(traceback.format_tb(tb))))
+                self.log.error("Unexpected exception in thread %s: %s %s\n%s", threading.currentThread().name, extype.__name__, ex, "".join(traceback.format_tb(tb)))
                 if threadutil.IsMainProcess() and threadutil.IsMainThread():
                     self.Abort()
                     sys.exit(1)
@@ -122,7 +122,7 @@ class PythonApp(object):
                 time_str = "%02d:%02d:%02d" % (hours, minutes, seconds)
             if (days > 0):
                 time_str = "%d-%02d:%02d:%02d" % (days, hours, minutes, seconds)
-            self.log.time("{} total run time {}".format(self.name, time_str))
+            self.log.time("%s total run time %s", self.name, time_str)
         if timer:
             atexit.register(RunTimer)
 
@@ -166,7 +166,7 @@ class PythonApp(object):
         if user_args.get("output_format", None):
             self.log.Silence()
 
-        self.log.debug("Starting {}".format(sys.argv))
+        self.log.debug("Starting %s", sys.argv)
         self.startTime = time.time()
 
         # Re-import config if the command line option was used to change the user config file

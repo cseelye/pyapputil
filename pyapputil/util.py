@@ -1,6 +1,7 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """This module provides various utility classes and functions"""
 
+from past.builtins import basestring as _basestring
 import calendar as _calendar
 import datetime as _datetime
 import json as _json
@@ -151,7 +152,7 @@ def SecondsToElapsedStr(seconds):
     Returns:
         A formatted elapsed time (str)
     """
-    if isinstance(seconds, basestring):
+    if isinstance(seconds, _basestring):
         return seconds
 
     delta = _datetime.timedelta(seconds=seconds)

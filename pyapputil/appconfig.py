@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """
 This module presents configuration values combined from defaults, user config,
 and environment variables
@@ -134,6 +134,6 @@ else:
 
 appconfig = ConfigValues()
 appconfig.import_defaults()
-user_config = _os.environ.get(appconfig[PREFIX_VAR_NAME] + USER_CONFIG_VAR_NAME.upper(), appconfig[USER_CONFIG_VAR_NAME])
-appconfig.import_user_config(user_config)
+user_config_filename = _os.environ.get(appconfig[PREFIX_VAR_NAME] + USER_CONFIG_VAR_NAME.upper(), appconfig[USER_CONFIG_VAR_NAME])
+appconfig.import_user_config(user_config_filename)
 appconfig.import_environment()

@@ -215,7 +215,7 @@ class HelpFormatter(object):
 
             if not width:
                 try:
-                    width = _shellutil.GetConsoleSize()[0]
+                    width = min(120, _shellutil.GetConsoleSize()[0])
                 except (TypeError, IndexError):
                     pass
 
@@ -2451,7 +2451,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 setattr(parsed, extraArgsKey, extras)
         else:
             parsed = self.parse_args(args=args, namespace=namespace)
-        return { key : value for key, value in vars(parsed).iteritems() if value != None }
+        return { key : value for key, value in vars(parsed).items() if value != None }
 
     # ========================
     # Alt command line argument parsing, allowing free intermix

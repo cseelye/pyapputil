@@ -9,6 +9,9 @@ and then uploading:
 """
 
 NAME = "pyapputil"
+
+cwd = path.abspath(path.dirname(__file__))
+
 setup(
     name = NAME,
     version = "__VERSION__",
@@ -19,6 +22,14 @@ setup(
     keywords = "cli arguments configuration logging signals threads time",
     packages = [NAME],
     url = "https://github.com/cseelye/{}".format(NAME),
-    long_description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read(),
-    install_requires = open(os.path.join(os.path.dirname(__file__), "requirements.txt")).readlines()
+    long_description = open(os.path.join(cwd, "README.rst")).read(),
+    #long_description_content_type='text/markdown',
+    install_requires = get_requirements("requirements.txt"),
+    extras_requires = {
+        "dev" : get_requirements("requirements-dev.txt")
+    }
 )
+
+def get_requirements(filename):
+    return [ line for line in open(os.path.join(cwd, "requirements.txt")).readlines() \
+            if line.strip() and not line.startswith("-") and not line.startswith("#") ]

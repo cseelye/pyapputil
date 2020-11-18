@@ -11,9 +11,6 @@ class ApplicationError(Exception):
         self.originalTraceback = originalTraceback
         self.innerException = innerException
 
-    def __str__(self):
-        return self.message
-
     def IsRetryable(self):
         return False
 

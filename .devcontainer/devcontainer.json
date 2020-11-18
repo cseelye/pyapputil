@@ -1,0 +1,14 @@
+{
+	"name": "Existing Dockerfile",
+	"context": "..",
+	"dockerFile": "../Dockerfile",
+	"build": {
+		"target": "py3"
+	},
+	"settings": { 
+		"terminal.integrated.shell.linux": null
+	},
+	"extensions": [
+		"ms-python.python"
+	]
+}
