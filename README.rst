@@ -2,9 +2,6 @@
 pyapputil
 =========
 
-.. image:: https://travis-ci.org/cseelye/pyapputil.svg?branch=master
-    :target: https://travis-ci.org/cseelye/pyapputil
-
 .. image:: https://badge.fury.io/py/pyapputil.svg
     :target: https://badge.fury.io/py/pyapputil
 
