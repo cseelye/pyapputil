@@ -12,6 +12,10 @@ NAME = "pyapputil"
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 
+def get_requirements(filename):
+    return [ line for line in open(os.path.join(cwd, "requirements.txt")).readlines() \
+            if line.strip() and not line.startswith("-") and not line.startswith("#") ]
+
 setup(
     name = NAME,
     version = "__VERSION__",
@@ -30,6 +34,3 @@ setup(
     }
 )
 
-def get_requirements(filename):
-    return [ line for line in open(os.path.join(cwd, "requirements.txt")).readlines() \
-            if line.strip() and not line.startswith("-") and not line.startswith("#") ]
