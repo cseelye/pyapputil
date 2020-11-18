@@ -10,7 +10,7 @@ and then uploading:
 
 NAME = "pyapputil"
 
-cwd = path.abspath(path.dirname(__file__))
+cwd = os.path.abspath(path.dirname(__file__))
 
 setup(
     name = NAME,
