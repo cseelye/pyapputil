@@ -2,7 +2,7 @@
 APP_NAME=pyapputil
 
 pylint:
-	pylint --disable R,C $(APP_NAME)
+	pylint --disable R,C,raise-missing-from $(APP_NAME)
 
 dist:
 	python setup.py dist
