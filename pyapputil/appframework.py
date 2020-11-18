@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """Helper for creating simple command line applications"""
 
 import atexit
@@ -11,7 +11,7 @@ import threading
 import time
 import traceback
 
-from . import logutil, threadutil
+from . import appconfig, logutil, threadutil
 from .exceptutil import InvalidArgumentError
 
 app_excepthook_threadsafe_locker = threading.RLock()
@@ -57,7 +57,7 @@ def SetExcepthook(handler):
 class PythonApp(object):
     """Simple app helper"""
 
-    def __init__(self, main_func, options=None, timer=True, require_superuser=False, custom_log_config=None):
+    def __init__(self, main_func, timer=True, require_superuser=False, custom_log_config=None):
         """
         Initialize the application
 
@@ -66,7 +66,6 @@ class PythonApp(object):
                                 will be used as the exit code, or the return value will be evaluated in boolean context and be
                                 converted to an exit code of 0 or 1.  If mainFunc throws an exception, it will be converted to an
                                 exit code of 1
-            options:            parsed command line options (argparse Namespace object)
             timer:              show the run time of the script when it ends
             require_superuser:  if the app should require superuser privileges before running
             custom_log_config:  a log config dictionary to use when creating the logger for the app
@@ -75,7 +74,6 @@ class PythonApp(object):
             raise TypeError("main_func must be callable")
         self.main = main_func
         self.require_superuser = require_superuser
-        self.options = options
         self.name = os.path.basename(inspect.stack()[-1][1])
         self.startTime = time.time()
 
@@ -95,7 +93,7 @@ class PythonApp(object):
         def UnhandledException(extype, ex, tb):
             """Create a global handler to log any uncaught exceptions from any threads"""
             if extype not in [KeyboardInterrupt, SystemExit]:
-                self.log.error("Unexpected exception in thread {}: {} {}\n{}".format(threading.currentThread().name, extype.__name__, ex, "".join(traceback.format_tb(tb))))
+                self.log.error("Unexpected exception in thread %s: %s %s\n%s", threading.currentThread().name, extype.__name__, ex, "".join(traceback.format_tb(tb)))
                 if threadutil.IsMainProcess() and threadutil.IsMainThread():
                     self.Abort()
                     sys.exit(1)
@@ -124,7 +122,7 @@ class PythonApp(object):
                 time_str = "%02d:%02d:%02d" % (hours, minutes, seconds)
             if (days > 0):
                 time_str = "%d-%02d:%02d:%02d" % (days, hours, minutes, seconds)
-            self.log.time("{} total run time {}".format(self.name, time_str))
+            self.log.time("%s total run time %s", self.name, time_str)
         if timer:
             atexit.register(RunTimer)
 
@@ -135,38 +133,6 @@ class PythonApp(object):
 
         # Handle signal
         signal(SIGINT, self.Signal)
-
-        self.log.TruncateMessages(True)
-        debug = self.PopOption("debug")
-        if debug:
-            self.log.ShowDebug(level=debug)
-            if debug >= 3:
-                self.log.TruncateMessages(False)
-        else:
-            self.log.HideDebug()
-
-    def PopOption(self, optionName):
-        """Remove and return the value of an option passed from the command line"""
-        try:
-            return self.options.pop(optionName)
-        except (TypeError, KeyError):
-            pass
-
-        if hasattr(self.options, optionName):
-            val = getattr(self.options, optionName)
-            delattr(self.options, optionName)
-            return val
-
-        return None
-
-    def GetOption(self, optionName):
-        """Get the value of an option passed from the command line"""
-        try:
-            return self.options[optionName]
-        except (TypeError, KeyError):
-            pass
-
-        return getattr(self.options, optionName, None)
 
     def Signal(self, *_):
         self.log.warning("Aborted by user")
@@ -180,15 +146,37 @@ class PythonApp(object):
     def Run(self, *args, **kwargs):
         """Run the app main function"""
 
-        self.log.debug("Starting {0}", str(sys.argv))
+        # Figure out if we got an argparse namespace and convert it to a dict instead
+        user_args = {}
+        if kwargs:
+            user_args = kwargs
+        elif args:
+            user_args = vars(args[0])
+
+        # Setup debug logging as requested
+        debug = user_args.pop("debug", 0)
+        self.log.TruncateMessages(True)
+        if debug:
+            self.log.ShowDebug(level=debug)
+            if debug >= 3:
+                self.log.TruncateMessages(False)
+        else:
+            self.log.HideDebug()
+
+        if user_args.get("output_format", None):
+            self.log.Silence()
+
+        self.log.debug("Starting %s", sys.argv)
         self.startTime = time.time()
 
-        if self.GetOption("output_format"):
-            self.log.Silence()
+        # Re-import config if the command line option was used to change the user config file
+        user_config_file = user_args.pop("user_config", None)
+        if user_config_file:
+            appconfig.set_user_config_file(user_config_file)
 
         # Run the main function
         try:
-            result = self.main(*args, **kwargs)
+            result = self.main(**user_args)
         except InvalidArgumentError as e:
             self.log.error(e)
             self.Abort()

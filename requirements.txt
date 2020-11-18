@@ -1,5 +1,2 @@
-PyYAML
-future
-mock ; python_version < '3.3'
-unittest2 ; python_version < '3'
-
+PyYAML==5.3.1
+future==0.18.2

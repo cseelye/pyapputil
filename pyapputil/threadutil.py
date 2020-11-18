@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """This module provides utility classes and functions for threading/multiprocessing"""
 
 import fcntl as _fcntl
@@ -8,9 +8,10 @@ import multiprocessing.pool as _multiprocessing_pool
 import sys as _sys
 import threading as _threading
 import traceback as _traceback
+from io import open
 
 from .logutil import GetLogger
-from .appconfig import appconfig, AddDefault
+from .appconfig import appconfig, add_default
 from .exceptutil import ApplicationError, TimeoutExpiredError
 
 # Helpful multiprocessing debug for threadpools
@@ -20,7 +21,7 @@ from .exceptutil import ApplicationError, TimeoutExpiredError
 
 CPU_THREADS = _multiprocessing.cpu_count()
 
-AddDefault("use_multiprocessing", False)
+add_default("use_multiprocessing", False)
 
 _globalPool = None
 _globalPoolLock = _multiprocessing.Lock()
@@ -200,7 +201,7 @@ def threadwrapper(func):
                 ex_val.originalTraceback = str_tb
                 raise
             log = GetLogger()
-            log.debug2(_traceback.format_exc(ex_val))
+            log.debug2(str_tb)
             raise ApplicationError("{}: {}".format(ex_type.__name__, ex_val), str_tb, ex_val)
         finally:
             _threading.current_thread().name = orig_name

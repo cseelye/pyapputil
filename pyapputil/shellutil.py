@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """
 Helpers for running shell commands and manipulating the console/terminal in a cross-platform way
 """

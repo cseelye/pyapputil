@@ -88,7 +88,6 @@ __all__ = [
     'REMAINDER',
     'SUPPRESS',
     'ZERO_OR_MORE',
-    'STD_EPILOG',
 ]
 
 from past.builtins import basestring as _basestring
@@ -96,10 +95,11 @@ import collections as _collections
 import os as _os
 import re as _re
 import sys as _sys
+from textwrap import dedent as _dedent
 from io import open as _open
 from gettext import gettext as _, ngettext
 
-from .appconfig import appconfig as _appconfig
+from . import appconfig as _appconfig
 from . import shellutil as _shellutil
 from . import exceptutil as _exceptutil
 
@@ -113,9 +113,21 @@ PARSER = 'A...'
 REMAINDER = '...'
 _UNRECOGNIZED_ARGS_ATTR = '_unrecognized_args'
 
-STD_EPILOG = ("Options with an env: in the description can be specified with the corresponding environment variable "
-                 "instead of the command line argument. If both the env variable are set and the command line argument "
-                 "specified, the command line will take precedence.")
+_CONFIG_FILE_ARG = "user-config"
+
+_CONFIG_HELP =_dedent("""\
+    Most options can be specified in a config file or as ENV vars instead of the command line argument. For instance, if you want to set the value of some-argument, you could do so on the command line:
+        --some-argument="value"
+    in your YAML config file:
+        some_argument: "value"
+    or in your environment:
+        export {}SOME_ARGUMENT="value"
+    Arguments that support this have env: or cfg: in their description to indicate the name of the env var or config file var
+    
+    The default config file is {} but this can be changed with the {} command line argument or environment variable.
+""".format(_appconfig.appconfig[_appconfig.PREFIX_VAR_NAME],
+           _appconfig.appconfig[_appconfig.USER_CONFIG_VAR_NAME],
+           _CONFIG_FILE_ARG))
 
 def _isidentifier(teststr):
     """isidentifier compatibility function for both python2 and 3"""
@@ -203,7 +215,7 @@ class HelpFormatter(object):
 
             if not width:
                 try:
-                    width = _shellutil.GetConsoleSize()[0]
+                    width = min(120, _shellutil.GetConsoleSize()[0])
                 except (TypeError, IndexError):
                     pass
 
@@ -763,7 +775,7 @@ class ArgHelpFormatter(HelpFormatter):
 
         # Add environment variable override to help string
         if action.use_appconfig:
-            help_str += " (env: {})".format(_appconfig["ENV_CONFIG_PREFIX"] + action.dest.upper())
+            help_str += " (env: {}; cfg: {})".format(_appconfig.appconfig["ENV_CONFIG_PREFIX"] + action.dest.upper(), action.dest)
 
         return help_str
 
@@ -892,7 +904,7 @@ class Action(_AttributeHolder):
         self.metavar = metavar
         self.use_appconfig = use_appconfig
         if self.use_appconfig:
-            self.default = _appconfig.get(self.dest, None)
+            self.default = _appconfig.appconfig.get(self.dest, None)
     #pylint: enable=redefined-builtin
 
     def _get_kwargs(self):
@@ -1141,6 +1153,24 @@ class _HelpAction(Action):
         parser.print_help()
         parser.exit()
 
+class _ConfigHelpAction(Action):
+    #pylint: disable=redefined-builtin
+    def __init__(self,
+                 option_strings,
+                 dest=SUPPRESS,
+                 default=SUPPRESS,
+                 help=None):
+        super(_ConfigHelpAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help)
+    #pylint: enable=redefined-builtin
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser._print_message(_CONFIG_HELP, _sys.stdout)
+        parser.exit()
 
 class _VersionAction(Action):
 
@@ -1223,6 +1253,10 @@ class _SubParsersAction(Action):
             help = kwargs.pop('help')
             choice_action = self._ChoicesPseudoAction(name, aliases, help)
             self._choices_actions.append(choice_action)
+
+        # subparsers cannot have debug or config arguments
+        kwargs["add_debug"] = False
+        kwargs["add_config"] = False
 
         # create the parser and add it to the map
         parser = self._parser_class(**kwargs)
@@ -1388,6 +1422,7 @@ class _ActionsContainer(object):
         self.register('action', 'append_const', _AppendConstAction)
         self.register('action', 'count', _CountAction)
         self.register('action', 'help', _HelpAction)
+        self.register('action', 'config_help', _ConfigHelpAction)
         self.register('action', 'version', _VersionAction)
         self.register('action', 'parsers', _SubParsersAction)
         self.register('action', 'list', _ListAction)
@@ -1747,7 +1782,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                  prog=None,
                  usage=None,
                  description=None,
-                 epilog=STD_EPILOG,
+                 epilog="",
                  parents=None,
                  formatter_class=ArgHelpFormatter,
                  prefix_chars='-',
@@ -1756,9 +1791,15 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                  conflict_handler='error',
                  add_help=True,
                  allow_abbrev=True,
-                 add_debug=True):
+                 add_debug=True,
+                 add_config=True):
 
         parents = parents or []
+        if parents:
+            # Debug and config not allowed on sub-parsers
+            add_debug = False
+            add_config = False
+
         super(ArgumentParser, self).__init__(description=description,
                                              prefix_chars=prefix_chars,
                                              argument_default=argument_default,
@@ -1807,8 +1848,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # Add debug option if it is not already there
         if add_debug:
-            short_debug_option = default_prefix+"d"
-            long_debug_option = default_prefix*2+"debug"
+            short_debug_option = default_prefix + "d"
+            long_debug_option = default_prefix*2 + "debug"
             existing_options = [s for action in self._actions for s in action.option_strings]
             if short_debug_option not in existing_options and long_debug_option not in existing_options:
                 self.add_argument(short_debug_option,
@@ -1817,6 +1858,18 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                                   default=0,
                                   help="display more verbose messages")
 
+        if add_config:
+            long_file_option = default_prefix*2 + _CONFIG_FILE_ARG
+            config_group = self.add_argument_group(title="Configuration")
+            config_group.add_argument(long_file_option,
+                                      metavar="FILENAME",
+                                      default=_appconfig.appconfig[_appconfig.USER_CONFIG_VAR_NAME],
+                                      help="User config file")
+            long_help_option = default_prefix*2 + "config-help"
+            config_group.add_argument(long_help_option,
+                                      action="config_help",
+                                      default=SUPPRESS,
+                                      help="show detailed help about using config files and environment variables instead of command line args")
 
     # =======================
     # Pretty __repr__ methods
@@ -2398,7 +2451,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 setattr(parsed, extraArgsKey, extras)
         else:
             parsed = self.parse_args(args=args, namespace=namespace)
-        return { key : value for key, value in vars(parsed).iteritems() if value != None }
+        return { key : value for key, value in vars(parsed).items() if value != None }
 
     # ========================
     # Alt command line argument parsing, allowing free intermix
