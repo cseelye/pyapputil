@@ -1,9 +1,6 @@
-=========
-pyapputil
-=========
+# pyapputil
 
-.. image:: https://badge.fury.io/py/pyapputil.svg
-    :target: https://badge.fury.io/py/pyapputil
+[![](https://badge.fury.io/py/pyapputil.svg)](https://badge.fury.io/py/pyapputil)
 
 Python module to simplify building CLI applications. Includes simple helpers for
 building an app, validating arguments, configfiles/default values, logging,
@@ -12,10 +9,37 @@ time/timezones, multithreading...
 
 Python 2 and 3 compatible.
 
-Documentation in progress...
-
 appframework
 ============
+
+This wrapper takes care of signal handling, uncaught exceptions, exit codes, and a host of other
+things so you don't have to. It integrates with appconfig, argutil to provide argument parsing with config file support,
+overidable default values, and user friendly help, plus typeutil to provide easy, strong argument
+validation while maintaining duck typing.
+
+```python
+from pyapputil.appframework import PythonApp
+from pyapputil.appconfig import appconfig
+from pyapputil.argutil import ArgumentParser
+from pyapputil.typeutil import ValidateAndDefault, OptionalValueType, StrType
+
+@ValidateAndDefault({
+    # "arg_name" : (arg_type, arg_default)
+    "arg1" : (OptionalValueType(StrType(allowEmpty=False)), appconfig["arg1"]),
+    "arg2" : (float, 0),
+})
+def main(arg1, arg2):
+    pass
+
+if __name__ == '__main__':
+    parser = ArgumentParser(description="My cool commandline app")
+    parser.add_argument("-a", "--arg1", type=StrType(allowEmpty=False), default=appconfig["arg1"], help="the first argument")
+    parser.add_argument("-b", "--arg2", type=float, help="the second argument")
+    args = parser.parse_args_to_dict()
+
+    app = PythonApp(main, args)
+    app.Run(**args)
+```
 
 appconfig
 =========
@@ -25,11 +49,10 @@ and environment variables.
 
 To get a configuration variable named ``some_value``:
 
-.. code:: python
-
+```python
     from pyapputil.appconfig import appconfig
     appconfig["some_value"]
-
+```
 The default values are stored in ``appdefaults.py`` in the application's
 root directory. This is a pure python file that gets imported, so you it can be
 anything from a list of variables/values to any arbitrary code you need to set
@@ -47,9 +70,10 @@ user config. The prefix used for environment variables is set in appdefaults.py.
 If the prefix is set to  "MYAPP\_" and the user wan't to override a config var
 named some_value, they could override it with an environment varible like this:
 
-.. code::
 
+```
     export MYAPP_SOME_VALUE=123
+```
 
 argutil
 =======

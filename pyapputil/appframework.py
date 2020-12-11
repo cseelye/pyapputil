@@ -1,5 +1,34 @@
 #!/usr/bin/env python
-"""Helper for creating simple command line applications"""
+"""
+Helper for creating simple command line applications
+
+This wrapper takes care of signal handling, uncaught exceptions, exit codes, and a host of other
+things so you don't have to. It integrates with appconfig, argutil to provide config file support,
+overidable default values, and user friendly help, plus typeutil to provide easy, strong argument
+validation while maintaining duck typing.
+
+
+from pyapputil.appframework import PythonApp
+from pyapputil.argutil import ArgumentParser
+from pyapputil.typeutil import ValidateAndDefault, OptionalValueType, StrType
+
+@ValidateAndDefault({
+    # "arg_name" : (arg_type, arg_default)
+    "arg1" : (OptionalValueType(StrType(allowEmpty=False)), None),
+    "arg2" : (float, 0),
+})
+def main(arg1, arg2):
+    pass
+
+if __name__ == '__main__':
+    parser = ArgumentParser(description="My cool commandline app")
+    parser.add_argument("-a", "--arg1", type=StrType(allowEmpty=False), help="the first argument")
+    parser.add_argument("-b", "--arg2", type=float, help="the second argument")
+    args = parser.parse_args_to_dict()
+
+    app = PythonApp(main, args)
+    app.Run(**args)
+"""
 
 import atexit
 from datetime import timedelta
