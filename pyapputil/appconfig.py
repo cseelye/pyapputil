@@ -96,7 +96,7 @@ class ConfigValues(dict):
         self[USER_CONFIG_VAR_NAME] = user_config_file
         if _os.path.exists(user_config_file):
             with open(user_config_file, "r") as userfile:
-                user_config = _yaml.load(userfile)
+                user_config = _yaml.safe_load(userfile)
             for keyname in blacklisted_vars:
                 user_config.pop(keyname, None)
             if user_config:
