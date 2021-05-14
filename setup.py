@@ -28,7 +28,7 @@ setup(
     keywords = "cli arguments configuration logging signals threads time",
     packages = [NAME],
     url = "https://github.com/cseelye/{}".format(NAME),
-    long_description = open(os.path.join(cwd, "README.rst")).read(),
+    long_description = open(os.path.join(cwd, "README.md")).read(),
     #long_description_content_type='text/markdown',
     install_requires = get_requirements("requirements.txt"),
     extras_requires = {
