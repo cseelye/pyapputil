@@ -60,7 +60,7 @@ class ConfigValues(dict):
         # Import the default values from the app defaults file
         if _os.path.exists(defaults_filepath):
             self.update(_runpy.run_path(defaults_filepath))
-            for _key in self.keys():
+            for _key in list(self.keys()):
                 if _key.startswith("_"):
                     del self[_key]
 
