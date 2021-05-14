@@ -27,6 +27,6 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        sed "s/__VERSION__/${{ github.event.release.tag_name }}/" -i setup.py
+        sed 's/VERSION = "__VERSION__"/VERSION = "${{ github.event.release.tag_name }}"/'' -i setup.py
         python setup.py sdist
         twine upload dist/*
