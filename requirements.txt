@@ -1,2 +1,4 @@
+dnspython==2.1.0
 PyYAML==5.4
 future==0.18.2
+requests==2.25.1
