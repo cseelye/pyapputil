@@ -189,6 +189,11 @@ class MultiFormatter(logging.Formatter):
         self.truncateLongMessages = True
         logging.Formatter.__init__(self, fmt)
 
+    def _setfmt(self, newfmt):
+        if hasattr(self, "_style"):
+            self._style._fmt = newfmt
+        self._fmt = newfmt
+
     def format(self, record):
         # Trim any trailing whitespace
         if isinstance(record.msg, _basestring):
@@ -197,7 +202,7 @@ class MultiFormatter(logging.Formatter):
                 record.msg = "  <empty msg>"
         # Select the format to use based on level
         if record.levelno == CustomLogLevels.RAW or record.levelno == CustomLogLevels.TIME:
-            self._fmt = self.rawFormat
+            self._setfmt(self.rawFormat)
 
         elif record.levelno == CustomLogLevels.BANNER:
             # Set the banner format based on the current width of the shell
@@ -218,13 +223,13 @@ class MultiFormatter(logging.Formatter):
                 for piece in pieces:
                     modified.append(piece.center(bannerWidth, ' '))
             record.msg = '\n'.join(modified)
-            self._fmt = bannerFormat
+            self._setfmt(bannerFormat)
 
         elif record.levelno == CustomLogLevels.STEP:
             record.msg = '>>> ' + record.msg
 
         elif record.levelno == CustomLogLevels.BLANK:
-            self._fmt = self.rawFormat
+            self._setfmt(self.rawFormat)
             record.msg = ""
 
         else:
@@ -245,7 +250,7 @@ class MultiFormatter(logging.Formatter):
             if proc.daemon or proc.name != "MainProcess" or thr.daemon or thr.name != "MainThread":
                 record.msg = "  " + record.msg
 
-            self._fmt = self.baseFormat
+            self._setfmt(self.baseFormat)
 
         # Cut debug and debug2 messages to 1024 characters
         if self.truncateLongMessages and record.levelno in (logging.DEBUG, CustomLogLevels.DEBUG2):
@@ -256,7 +261,7 @@ class MultiFormatter(logging.Formatter):
         result = logging.Formatter.format(self, record)
 
         # Restore the formatter
-        self._fmt = self.baseFormat
+        self._setfmt(self.baseFormat)
 
         return result
 
