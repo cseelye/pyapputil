@@ -453,24 +453,23 @@ class IPv4SubnetType(StrType):
     def __repr__(self):
         return "IPv4Subnet"
 
-class IntegerRangeType(object):
-    """Type for validating an integer within a range of values, inclusive"""
-
-    def __init__(self, minValue=None, maxValue=None):
+class NumberRangeType(object):
+    """Type for validating a number within a range of values, inclusive"""
+    def __init__(self, minValue=None, maxValue=None, numType=float):
         self.minValue = None
         self.maxValue = None
+        self.numType = numType
 
         if minValue is not None:
-            self.minValue = int(minValue)
+            self.minValue = numType(minValue)
         if maxValue is not None:
-            self.maxValue = int(maxValue)
+            self.maxValue = numType(maxValue)
 
     def __call__(self, inVal):
-
         try:
-            number = int(inVal)
+            number = self.numType(inVal)
         except (TypeError, ValueError):
-            raise InvalidArgumentError("{} is not a valid integer".format(inVal))
+            raise InvalidArgumentError("{} is not a valid {}".format(inVal, GetPrettiestTypeName(self.numType)))
 
         if self.minValue is not None and number < self.minValue:
             raise InvalidArgumentError("{} must be >= {}".format(number, self.minValue))
@@ -479,6 +478,12 @@ class IntegerRangeType(object):
             raise InvalidArgumentError("{} must be <= {}".format(number, self.maxValue))
 
         return number
+
+class IntegerRangeType(NumberRangeType):
+    """Type for validating an integer within a range of values, inclusive"""
+
+    def __init__(self, minValue=None, maxValue=None):
+        super(IntegerRangeType, self).__init__(minValue, maxValue, numType=int)
 
     def __repr__(self):
         return "int"
@@ -510,6 +515,7 @@ class VLANTagType(IntegerRangeType):
     def __repr__(self):
         return "VLANTag"
 
+
 class MACAddressType(StrType):
     """Type for validating MAC address"""
 
@@ -539,6 +545,25 @@ class RegExType(object):
     def __repr__(self):
         return "RegEx"
 
+class GPSLocation(StrType):
+    """Type for validating a GPS location"""
+
+    def __init__(self):
+        super(GPSLocation, self).__init__(allowEmpty=False)
+
+    def __call__(self, inVal):
+        inVal = super(GPSLocation, self).__call__(inVal)
+        pieces = [s.strip(" ()[]") for s in _re.split(r",\s*", inVal)]
+        if len(pieces) != 2:
+            raise InvalidArgumentError("{} is not a valid GPS coordinate".format(inVal))
+
+        lat = NumberRangeType(-90, 90)(pieces[0])
+        long = NumberRangeType(-180, 180)(pieces[1])
+
+        return lat, long
+
+    def __repr__(self):
+        return "GPSLocation"
 
 def GetPrettiestTypeName(typeToName):
     """Get the best human representation of a type"""
