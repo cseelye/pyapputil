@@ -29,7 +29,7 @@ setup(
     packages = [NAME],
     url = "https://github.com/cseelye/{}".format(NAME),
     long_description = open(os.path.join(cwd, "README.md")).read(),
-    #long_description_content_type='text/markdown',
+    long_description_content_type='text/markdown',
     install_requires = get_requirements("requirements.txt"),
     extras_requires = {
         "dev" : get_requirements("requirements-dev.txt")
