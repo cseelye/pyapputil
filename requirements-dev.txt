@@ -1,5 +1,5 @@
 -r requirements.txt
-pylint==2.6.0 ; python_version >= '3'
+pylint>=2.6.0 ; python_version >= '3'
 pylint==1.9.5 ; python_version < '3'
 twine>=1.15.0
 wheel>=0.34.2
